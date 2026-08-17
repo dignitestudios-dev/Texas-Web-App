@@ -4,7 +4,6 @@ import Image from 'next/image';
 export default function SubscriptionsPage() {
   return (
     <div className="min-h-screen bg-[#FEF0E9] flex flex-col relative w-full overflow-x-hidden">
-      {/* Top Left Logo */}
       <div className="absolute top-[20px] left-[20px] md:left-[150px] z-10">
         <Image
           src="/images/logo2.webp"
