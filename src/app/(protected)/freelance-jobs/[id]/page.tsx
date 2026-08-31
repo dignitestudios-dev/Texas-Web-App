@@ -4,7 +4,15 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Star, Clock, Navigation, DollarSign, FileText, CheckCircle2, ArrowLeft } from 'lucide-react';
+import {
+  Star,
+  Clock,
+  DollarSign,
+  FileText,
+  ArrowLeft,
+  ChevronRight,
+  Compass,
+} from 'lucide-react';
 
 interface JobDetailData {
   id: string;
@@ -26,29 +34,49 @@ interface JobDetailData {
   attachedImages: string[];
 }
 
+const DEFAULT_JOB: JobDetailData = {
+  id: '1',
+  category: 'House Cleaning',
+  isNew: true,
+  proposalsCount: 21,
+  title: 'I need house cleaning service.',
+  postedTime: 'Posted 2 hours ago',
+  descriptionParagraphs: [
+    'Meet Jake, a dedicated professional who has recently settled into a charming new apartment in the heart of the city. With a demanding job that keeps him on his toes, Jake often finds himself overwhelmed by the daily tasks of maintaining his living space. Between meetings, deadlines, and social commitments, he struggles to find the time to keep his home as tidy as he would like.',
+    'Understanding the importance of a clean and organized environment, Jake has decided to seek out a reliable house cleaning service. He knows that a clean home not only enhances his mood but also allows him to unwind after a long day at work. Jake is looking for a service that can provide thorough cleaning, ensuring that every corner of his apartment sparkles and feels inviting.',
+    'In his search, Jake is particularly interested in finding a company that offers flexible scheduling to accommodate his busy lifestyle. He values professionalism and attention to detail, as he wants to ensure that his home is not just clean, but also a reflection of his personal style. With the right cleaning service, Jake hopes to create a welcoming sanctuary where he can relax and recharge.',
+  ],
+  payRange: '$200 -$300',
+  distance: '500 miles',
+  duration: '1 day',
+  posterName: 'Nandi Bolard',
+  posterAvatar: '/images/avatar.webp',
+  posterRating: 5.0,
+  posterReviews: 48,
+  posterServices: 98,
+  isVerified: true,
+  attachedImages: ['/images/home/clean.webp', '/images/home/search.webp'],
+};
+
 const SAMPLE_JOB_DETAILS: Record<string, JobDetailData> = {
-  '1': {
-    id: '1',
-    category: 'House Cleaning',
-    isNew: true,
-    proposalsCount: 21,
-    title: 'I need house cleaning service.',
-    postedTime: 'Posted 2 hours ago',
-    descriptionParagraphs: [
-      'Meet Jake, a dedicated professional who has recently settled into a charming new apartment in the heart of the city. With a demanding job that keeps him on his toes, Jake often finds himself overwhelmed by the daily tasks of maintaining his living space. Between meetings, deadlines, and social commitments, he struggles to find the time to keep his home as tidy as he would like.',
-      'Understanding the importance of a clean and organized environment, Jake has decided to seek out a reliable house cleaning service. He knows that a clean home not only enhances his mood but also allows him to unwind after a long day at work. Jake is looking for a service that can provide thorough cleaning, ensuring that every corner of his apartment sparkles and feels inviting.',
-      'In his search, Jake is particularly interested in finding a company that offers flexible scheduling to accommodate his busy lifestyle. He values professionalism and attention to detail, as he wants to ensure that his home is not just clean, but also a reflection of his personal style. With the right cleaning service, Jake hopes to create a welcoming sanctuary where he can relax and recharge.',
-    ],
-    payRange: '$200 -$300',
-    distance: '500 miles',
-    duration: '1 day',
-    posterName: 'Nandi Bolard',
-    posterAvatar: '/images/avatar.webp',
-    posterRating: 5.0,
-    posterReviews: 48,
-    posterServices: 98,
-    isVerified: true,
-    attachedImages: ['/images/home/clean.webp', '/images/home/search.webp'],
+  '1': DEFAULT_JOB,
+  'req-1': {
+    ...DEFAULT_JOB,
+    id: 'req-1',
+    title: 'Get Senior Care',
+    category: 'Errands & Shopping',
+  },
+  'req-2': {
+    ...DEFAULT_JOB,
+    id: 'req-2',
+    title: 'Get Senior Care',
+    category: 'Errands & Shopping',
+  },
+  'req-3': {
+    ...DEFAULT_JOB,
+    id: 'req-3',
+    title: 'Get Senior Care',
+    category: 'Errands & Shopping',
   },
   '2': {
     id: '2',
@@ -101,22 +129,31 @@ export default function JobDetailPage() {
   const router = useRouter();
   const jobId = (params?.id as string) || '1';
 
-  const job = SAMPLE_JOB_DETAILS[jobId] || SAMPLE_JOB_DETAILS['1'];
+  const job = SAMPLE_JOB_DETAILS[jobId] || {
+    ...DEFAULT_JOB,
+    id: jobId,
+  };
 
   return (
     <div className="min-h-screen bg-[#FEF0E9] flex flex-col w-full">
       {/* Container */}
       <div className="w-full max-w-[1440px] mx-auto px-6 md:px-12 lg:px-[80px] py-8 lg:py-12 flex flex-col gap-6">
         
-        {/* Back Link */}
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="flex items-center gap-2 font-rubik text-[14px] text-[#121111] hover:text-[#F36922] transition w-fit outline-none cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Freelance Jobs</span>
-        </button>
+        {/* Breadcrumbs Row (Home > Job) */}
+        <div className="flex items-center gap-[10px] font-rubik text-[16px] text-[#3D3D3D]">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="w-[24px] h-[24px] flex items-center justify-center text-[#121111] hover:opacity-80 transition cursor-pointer border-none bg-transparent mr-1"
+          >
+            <ArrowLeft className="w-5 h-5 text-[#121111]" />
+          </button>
+          <Link href="/" className="hover:text-[#F36922] transition text-[#3D3D3D]">
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4 text-[#3D3D3D]" />
+          <span className="font-normal text-[#121111]">Job</span>
+        </div>
 
         {/* Main Content Layout */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-8 lg:gap-12 w-full">
@@ -192,11 +229,7 @@ export default function JobDetailPage() {
             
             {/* Location Pill */}
             <div className="w-full h-[40px] bg-[#F8F9FF] rounded-[8px] flex items-center justify-center gap-2 font-rubik font-normal text-[15px] text-[#121111]">
-              <svg className="w-4 h-4 text-[#0A0A6E] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="7" />
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-                <circle cx="12" cy="12" r="2" fill="currentColor" />
-              </svg>
+              <Compass className="w-4 h-4 text-[#0A0A6E] shrink-0" />
               <span>{job.distance}</span>
             </div>
 
@@ -229,7 +262,7 @@ export default function JobDetailPage() {
             <button
               type="button"
               onClick={() => router.push(`/freelance-jobs/${job.id}/submit-proposal`)}
-              className="w-full h-[54px] bg-[#F36922] hover:bg-[#e05813] text-white rounded-[8px] flex items-center justify-center gap-2.5 font-rubik font-normal text-[15px] leading-[24px] cursor-pointer shadow-xs transition border-none outline-none"
+              className="w-full h-[54px] bg-[#F36922] hover:bg-[#e05813] text-white rounded-[8px] flex items-center justify-center gap-2.5 font-rubik font-medium text-[15px] leading-[24px] cursor-pointer shadow-xs transition border-none outline-none"
             >
               <FileText className="w-5 h-5 text-white" />
               <span>Send Proposal</span>

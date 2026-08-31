@@ -12,7 +12,6 @@ import { saveToken } from '@/lib/cookies';
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
-  // phoneNumber: z.string().min(12, "Valid phone number is required"),
   address: z.string().min(5, "Address is required"),
 });
 
@@ -28,16 +27,13 @@ export const ProfileForm = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: '',
-      // phoneNumber: '',
       address: '',
     }
   });
 
   const onSubmit = (data: ProfileFormValues) => {
-    console.log("Profile created:", data);
-    // Save auth token in cookies after profile complete
+    console.log("Seeker profile created:", data);
     saveToken(`${Date.now()}`);
-    // Move to next step or dashboard
     router.replace('/subscriptions');
   };
 
@@ -51,20 +47,17 @@ export const ProfileForm = () => {
 
     if (!file) return;
 
-    // Check file type
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
       setFileError('Only JPG, PNG, or WebP formats are allowed.');
       return;
     }
 
-    // Check file size (5MB = 5 * 1024 * 1024 bytes)
     if (file.size > 5 * 1024 * 1024) {
       setFileError('File size must be less than 5MB.');
       return;
     }
 
-    // Create preview
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
   };
@@ -81,12 +74,11 @@ export const ProfileForm = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full space-y-10">
-
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full space-y-8">
         {/* Avatar Section */}
         <div className="flex flex-col gap-2">
           <div className="flex flex-row items-center justify-center gap-[30px]">
-            <div className="flex items-center justify-center w-[120px] h-[120px] bg-white rounded-full shadow-sm shrink-0 border border-gray-100 overflow-hidden relative">
+            <div className="flex items-center justify-center w-[110px] h-[110px] bg-white rounded-full shadow-sm shrink-0 border border-gray-100 overflow-hidden relative">
               {previewUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={previewUrl} alt="Profile Preview" className="w-full h-full object-cover" />
@@ -102,10 +94,14 @@ export const ProfileForm = () => {
                 accept="image/jpeg, image/png, image/webp"
                 className="hidden"
               />
-              <button type="button" onClick={handleUploadClick} className="flex items-center justify-center px-[20px] py-[8px] bg-white rounded-lg shadow-sm font-rubik font-normal text-[14px] leading-[19px] text-[#121111] border border-gray-100 hover:bg-gray-50 transition-colors">
+              <button
+                type="button"
+                onClick={handleUploadClick}
+                className="flex items-center justify-center px-[20px] py-[8px] bg-white rounded-lg shadow-sm font-rubik font-normal text-[14px] leading-[19px] text-[#121111] border border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
                 Upload
               </button>
-              <p className="font-rubik font-light text-[14px] leading-[17px] tracking-[-0.408px] text-[#121111]">
+              <p className="font-rubik font-light text-[13px] leading-[17px] tracking-[-0.408px] text-[#565656]">
                 Png, jpeg, webp upto 5mb
               </p>
             </div>
@@ -114,23 +110,25 @@ export const ProfileForm = () => {
         </div>
 
         {/* Inputs */}
-        <div className="flex flex-col gap-[20px] w-full">
+        <div className="flex flex-col gap-[18px] w-full">
           <div className="flex flex-col">
             <Input
               {...register('fullName')}
               placeholder="Full name"
-              className={`h-[48px] bg-[#F8F9FF] rounded-xl px-4 font-rubik font-light text-[14px] text-[#121111] placeholder:text-[#555252] outline-none focus-visible:ring-1 focus-visible:ring-[#0A0A6E] focus-visible:border-[#0A0A6E] focus-visible:ring-offset-0 border border-[#E4E4E7] ${errors.fullName ? 'ring-1 ring-red-500' : ''}`}
+              className={`h-[48px] bg-white rounded-xl px-4 font-rubik font-light text-[14px] text-[#121111] placeholder:text-[#555252] outline-none focus-visible:ring-1 focus-visible:ring-[#F36922] focus-visible:border-[#F36922] focus-visible:ring-offset-0 border border-[#E4E4E7] ${
+                errors.fullName ? 'ring-1 ring-red-500' : ''
+              }`}
             />
             {errors.fullName && <span className="text-red-500 text-sm mt-1 font-poppins">{errors.fullName.message}</span>}
           </div>
-
-
 
           <div className="flex flex-col">
             <Input
               {...register('address')}
               placeholder="Address"
-              className={`h-[48px] bg-[#F8F9FF] rounded-xl px-4 font-rubik font-light text-[14px] text-[#121111] placeholder:text-[#555252] outline-none focus-visible:ring-1 focus-visible:ring-[#0A0A6E] focus-visible:border-[#0A0A6E] focus-visible:ring-offset-0 border border-[#E4E4E7] ${errors.address ? 'ring-1 ring-red-500' : ''}`}
+              className={`h-[48px] bg-white rounded-xl px-4 font-rubik font-light text-[14px] text-[#121111] placeholder:text-[#555252] outline-none focus-visible:ring-1 focus-visible:ring-[#F36922] focus-visible:border-[#F36922] focus-visible:ring-offset-0 border border-[#E4E4E7] ${
+                errors.address ? 'ring-1 ring-red-500' : ''
+              }`}
             />
             {errors.address && <span className="text-red-500 text-sm mt-1 font-poppins">{errors.address.message}</span>}
           </div>
@@ -139,7 +137,7 @@ export const ProfileForm = () => {
         {/* Continue Button */}
         <Button
           type="submit"
-          className="flex flex-row justify-center items-center py-[14px] px-[16px] gap-[6px] w-full h-[48px] bg-[#F36922] rounded-xl hover:bg-[#E55A13] transition-colors text-white shadow-sm border-none"
+          className="flex flex-row justify-center items-center py-[14px] px-[16px] gap-[6px] w-full h-[48px] bg-[#F36922] rounded-xl hover:bg-[#E55A13] transition-colors text-white shadow-sm border-none cursor-pointer"
         >
           <span className="font-rubik font-medium text-[15px] leading-[1.35] text-center capitalize">
             Continue

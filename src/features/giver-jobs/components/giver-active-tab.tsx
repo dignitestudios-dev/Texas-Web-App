@@ -1,331 +1,341 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
-  DollarSign,
-  Star,
-  CheckCircle2,
+  Info,
+  Clock,
+  Calendar,
+  MapPin,
   Navigation,
+  Star,
+  ArrowRight,
+  BadgeDollarSign,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
-export type GiverJobSubTab = 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+export type GiverJobSubTab = 'upcoming' | 'ongoing';
 
 interface GiverActiveTabProps {
-  activeSubTab: GiverJobSubTab;
-  onSubTabChange: (tab: GiverJobSubTab) => void;
+  activeSubTab?: GiverJobSubTab;
+  onSubTabChange?: (tab: GiverJobSubTab) => void;
   onSelectJob?: (jobId: string) => void;
 }
 
-interface JobPostItem {
+export interface ActiveJobItem {
   id: string;
+  badge?: string;
   title: string;
-  subtitle: string;
-  badges: { text: string; isDark?: boolean }[];
+  category: string;
   price: string;
-  isCompleted?: boolean;
-  caregiverName: string;
-  caregiverAvatar: string;
-  rating: number;
-  reviewsCount: number;
-  servicesCount: number;
+  budgetRange?: string;
+  description: string;
+  time: string;
+  date: string;
+  location: string;
+  distance: string;
+  seekerName: string;
+  seekerAvatar: string;
+  seekerRating: number;
+  seekerReviews: number;
+  seekerServices: number;
 }
 
-const JOBS_DATA: Record<GiverJobSubTab, JobPostItem[]> = {
-  upcoming: [
-    {
-      id: 'job-1',
-      title: 'I need house cleaning service.',
-      subtitle: 'Upcoming in 2 days',
-      badges: [{ text: 'House Cleaning' }, { text: 'NEW' }],
-      price: '$14',
-      caregiverName: 'Nandi Bolard',
-      caregiverAvatar: '/images/avatar.webp',
-      rating: 5.0,
-      reviewsCount: 48,
-      servicesCount: 98,
-    },
-    {
-      id: 'job-2',
-      title: 'I need house cleaning service.',
-      subtitle: 'Upcoming in 2 days',
-      badges: [{ text: 'Instant Job', isDark: true }],
-      price: '$14',
-      caregiverName: 'Nandi Bolard',
-      caregiverAvatar: '/images/avatar.webp',
-      rating: 5.0,
-      reviewsCount: 48,
-      servicesCount: 98,
-    },
-    {
-      id: 'job-3',
-      title: 'Seeking a personal chef.',
-      subtitle: 'Upcoming in 3 days',
-      badges: [{ text: 'House Cleaning' }, { text: 'NEW' }],
-      price: '$25',
-      caregiverName: 'Sophia Chang',
-      caregiverAvatar: '/images/giver.webp',
-      rating: 4.9,
-      reviewsCount: 22,
-      servicesCount: 50,
-    },
-    {
-      id: 'job-4',
-      title: 'Looking for a dog walker.',
-      subtitle: 'Scheduled for next week',
-      badges: [{ text: 'House Cleaning' }, { text: 'NEW' }],
-      price: '$12',
-      caregiverName: 'Liam Johnson',
-      caregiverAvatar: '/images/avatar.webp',
-      rating: 4.8,
-      reviewsCount: 32,
-      servicesCount: 75,
-    },
-  ],
-  ongoing: [
-    {
-      id: 'job-5',
-      title: 'I need house cleaning service.',
-      subtitle: 'Ongoing - Day 1',
-      badges: [{ text: 'House Cleaning' }, { text: 'In Progress', isDark: true }],
-      price: '$14',
-      caregiverName: 'Nandi Bolard',
-      caregiverAvatar: '/images/avatar.webp',
-      rating: 5.0,
-      reviewsCount: 48,
-      servicesCount: 98,
-    },
-  ],
-  completed: [
-    {
-      id: 'job-6',
-      title: 'I need yard maintenance service.',
-      subtitle: 'Completed on 15 Jan 2026',
-      badges: [{ text: 'House Cleaning' }, { text: 'NEW' }],
-      price: '$150',
-      isCompleted: true,
-      caregiverName: 'Renee Packer',
-      caregiverAvatar: '/images/avatar.webp',
-      rating: 4.8,
-      reviewsCount: 32,
-      servicesCount: 75,
-    },
-    {
-      id: 'job-7',
-      title: 'Deep House Cleaning.',
-      subtitle: 'Completed on 10 Aug 2026',
-      badges: [{ text: 'House Cleaning' }],
-      price: '$200',
-      isCompleted: true,
-      caregiverName: 'Sophia Chang',
-      caregiverAvatar: '/images/giver.webp',
-      rating: 5.0,
-      reviewsCount: 50,
-      servicesCount: 98,
-    },
-  ],
-  cancelled: [
-    {
-      id: 'job-8',
-      title: 'Pet Sitting Service.',
-      subtitle: 'Cancelled',
-      badges: [{ text: 'Pet Care' }],
-      price: '$15',
-      caregiverName: 'Liam Johnson',
-      caregiverAvatar: '/images/avatar.webp',
-      rating: 4.8,
-      reviewsCount: 32,
-      servicesCount: 75,
-    },
-  ],
-};
+const UPCOMING_JOBS: ActiveJobItem[] = [
+  {
+    id: 'up-1',
+    title: 'Elderly Care Assistant Seeking Job',
+    category: 'Elderly Care',
+    price: '$35-$50',
+    budgetRange: '$200 - $300',
+    description:
+      "I'm looking for a reliable and patient caregiver to join our family. Focus on outdoor play and reading. Must be safety-conscious and energetic.",
+    time: '12:00 PM',
+    date: '12 Dec 23',
+    location: 'San Juan, Texas',
+    distance: '14 miles away',
+    seekerName: 'John Doe',
+    seekerAvatar: '/images/avatar.webp',
+    seekerRating: 5.0,
+    seekerReviews: 48,
+    seekerServices: 98,
+  },
+];
+
+const ONGOING_JOBS: ActiveJobItem[] = [
+  {
+    id: 'on-1',
+    title: 'Elderly Care Assistant Seeking Job',
+    category: 'Elderly Care',
+    price: '$35-$50',
+    budgetRange: '$200 - $300',
+    description:
+      "I'm looking for a reliable and patient caregiver to join our family. Focus on outdoor play and reading. Must be safety-conscious and energetic.",
+    time: '12:00 PM',
+    date: '12 Dec 23',
+    location: 'San Juan, Texas',
+    distance: '14 miles away',
+    seekerName: 'John Doe',
+    seekerAvatar: '/images/avatar.webp',
+    seekerRating: 5.0,
+    seekerReviews: 48,
+    seekerServices: 98,
+  },
+  {
+    id: 'on-2',
+    badge: 'Instant Job',
+    title: 'Instant Caregiver Request',
+    category: 'Elderly Care',
+    price: '$50',
+    description:
+      "I'm looking for a reliable and patient caregiver to join our family. Focus on outdoor play and reading. Must be safety-conscious and energetic.",
+    time: '12:00 PM',
+    date: '12 Dec 23',
+    location: 'San Juan, Texas',
+    distance: '14 miles away',
+    seekerName: 'John Doe',
+    seekerAvatar: '/images/avatar.webp',
+    seekerRating: 5.0,
+    seekerReviews: 48,
+    seekerServices: 98,
+  },
+];
 
 export function GiverActiveTab({
-  activeSubTab,
+  activeSubTab: externalSubTab,
   onSubTabChange,
   onSelectJob,
 }: GiverActiveTabProps) {
   const router = useRouter();
-  const currentJobs = JOBS_DATA[activeSubTab] || JOBS_DATA.upcoming;
+  const [internalSubTab, setInternalSubTab] = useState<GiverJobSubTab>('upcoming');
+  const [cancelModalStep, setCancelModalStep] = useState<number>(0);
+  const [targetCancelJobId, setTargetCancelJobId] = useState<string | null>(null);
 
-  const getSubTabHeading = () => {
-    switch (activeSubTab) {
-      case 'upcoming':
-        return 'Upcoming Jobs';
-      case 'ongoing':
-        return 'Ongoing Jobs';
-      case 'completed':
-        return 'Completed Jobs';
-      case 'cancelled':
-        return 'Cancelled Jobs';
+  const currentTab = externalSubTab || internalSubTab;
+
+  const handleTabChange = (tab: GiverJobSubTab) => {
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    } else {
+      setInternalSubTab(tab);
     }
   };
 
+  const currentJobs = currentTab === 'upcoming' ? UPCOMING_JOBS : ONGOING_JOBS;
+
   return (
-    <div className="flex flex-col gap-6 w-full items-start">
+    <div className="flex flex-col gap-6 w-full items-start pb-8">
       {/* Top Sub-tabs Pill Selector Row */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-3.5">
         <button
           type="button"
-          onClick={() => onSubTabChange('upcoming')}
-          className={`h-[42px] px-6 rounded-[32px] font-rubik font-medium text-[15px] transition cursor-pointer border-none outline-none ${
-            activeSubTab === 'upcoming'
-              ? 'bg-[#0A0A6E] text-white shadow-xs'
-              : 'bg-[#F8F9FF] text-[#121111] hover:bg-[#EEF0F8]'
+          onClick={() => handleTabChange('upcoming')}
+          className={`h-[48px] px-8 rounded-full font-rubik font-medium text-[16px] transition cursor-pointer border-none outline-none shadow-xs ${
+            currentTab === 'upcoming'
+              ? 'bg-[#0A0A6E] text-white shadow-sm'
+              : 'bg-white text-[#121111] hover:bg-[#F8F9FF]'
           }`}
         >
           Upcoming
         </button>
         <button
           type="button"
-          onClick={() => onSubTabChange('ongoing')}
-          className={`h-[42px] px-6 rounded-[32px] font-rubik font-medium text-[15px] transition cursor-pointer border-none outline-none ${
-            activeSubTab === 'ongoing'
-              ? 'bg-[#0A0A6E] text-white shadow-xs'
-              : 'bg-[#F8F9FF] text-[#121111] hover:bg-[#EEF0F8]'
+          onClick={() => handleTabChange('ongoing')}
+          className={`h-[48px] px-8 rounded-full font-rubik font-medium text-[16px] transition cursor-pointer border-none outline-none shadow-xs ${
+            currentTab === 'ongoing'
+              ? 'bg-[#0A0A6E] text-white shadow-sm'
+              : 'bg-white text-[#121111] hover:bg-[#F8F9FF]'
           }`}
         >
           Ongoing
         </button>
-        <button
-          type="button"
-          onClick={() => onSubTabChange('completed')}
-          className={`h-[42px] px-6 rounded-[32px] font-rubik font-medium text-[15px] transition cursor-pointer border-none outline-none ${
-            activeSubTab === 'completed'
-              ? 'bg-[#0A0A6E] text-white shadow-xs'
-              : 'bg-[#F8F9FF] text-[#121111] hover:bg-[#EEF0F8]'
-          }`}
-        >
-          Completed
-        </button>
-        <button
-          type="button"
-          onClick={() => onSubTabChange('cancelled')}
-          className={`h-[42px] px-6 rounded-[32px] font-rubik font-medium text-[15px] transition cursor-pointer border-none outline-none ${
-            activeSubTab === 'cancelled'
-              ? 'bg-[#0A0A6E] text-white shadow-xs'
-              : 'bg-[#F8F9FF] text-[#121111] hover:bg-[#EEF0F8]'
-          }`}
-        >
-          Cancelled
-        </button>
       </div>
 
-      {/* Section Heading */}
-      <h2 className="font-rubik font-medium text-[24px] leading-[28px] tracking-[-0.005em] text-[#121111]">
-        {getSubTabHeading()}
-      </h2>
+      {/* Info Notice Banner */}
+      <div className="flex items-center gap-2 font-rubik font-medium text-[16px] text-[#121111]">
+        <Info className="w-5 h-5 text-[#121111]/70 shrink-0" />
+        <span>View and manage your current care requests.</span>
+      </div>
 
       {/* Jobs List Container */}
-      <div className="w-full flex flex-col gap-[15px]">
-        {currentJobs.map((job) => {
-          const isCompletedCard = activeSubTab === 'completed' || job.isCompleted;
-
-          return (
-            <div
-              key={job.id}
-              className="w-full bg-white border border-[#EFEFEF] rounded-[12px] p-5 flex flex-col gap-4 shadow-xs"
-            >
-              {/* Top Row: Title, Subtitle, Badges & Price Tag */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-3 border-b border-[#EFEFEF]">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h3 className="font-rubik font-medium text-[16px] leading-[19px] tracking-[-0.005em] text-[#121111]">
-                      {job.title}
-                    </h3>
-                    {job.badges.map((badge, bIdx) => (
-                      <span
-                        key={bIdx}
-                        className={`h-[28px] px-3 rounded-[8px] font-inter font-medium text-[12px] flex items-center justify-center ${
-                          badge.isDark
-                            ? 'bg-[#0A0A6E] text-white'
-                            : 'bg-[#FEF0E9] border border-[#EFEFEF] text-[#121111]'
-                        }`}
-                      >
-                        {badge.text}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="font-rubik font-normal text-[13px] leading-[15px] tracking-[-0.005em] text-[#121111]">
-                    {job.subtitle}
+      <div className="w-full flex flex-col gap-5">
+        {currentJobs.map((job) => (
+          <div
+            key={job.id}
+            className="w-full max-w-[1080px] bg-white rounded-[16px] p-6 shadow-sm border border-[#EFEFEF]/86 flex flex-col gap-4"
+          >
+            {/* Top Row: Title, Subtitle / Badges & Price Tag */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full">
+              <div className="flex flex-col gap-1">
+                {job.badge ? (
+                  <span className="w-fit bg-[#1D68FF] text-white text-[13px] font-medium font-rubik px-3.5 py-1 rounded-full">
+                    {job.badge}
                   </span>
-                  {!isCompletedCard && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (onSelectJob) {
-                          onSelectJob(job.id);
-                        } else {
-                          router.push(`/my-jobs/${job.id}`);
-                        }
-                      }}
-                      className="font-rubik font-normal text-[14px] leading-[17px] tracking-[-0.005em] text-[#121111] underline hover:text-[#F36922] transition text-left cursor-pointer border-none bg-transparent p-0 w-fit"
-                    >
-                      View Job
-                    </button>
-                  )}
-                </div>
-
-                {/* Price Container */}
-                <div className="h-[48px] px-4 bg-[#FEF0E9] rounded-[8px] flex items-center justify-center gap-1.5 shrink-0">
-                  <DollarSign className="w-5 h-5 text-[#121111]" />
-                  <span className="font-rubik font-bold text-[24px] leading-[28px] tracking-[-0.005em] text-[#121111]">
-                    {job.price.replace('$', '')}
-                  </span>
-                  {!isCompletedCard && (
-                    <span className="font-rubik font-normal text-[14px] text-[#121111]">
-                      /Hr
-                    </span>
-                  )}
-                </div>
+                ) : (
+                  <h3 className="font-rubik font-semibold text-[18px] leading-[22px] tracking-[-0.005em] text-[#121111]">
+                    {job.title}
+                  </h3>
+                )}
+                <span className="font-rubik font-normal text-[14px] leading-[17px] text-[#727272]">
+                  {job.category}
+                </span>
               </div>
 
-              {/* Bottom Row: Caregiver Profile & Optional Map Location Link */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                {/* Caregiver Info */}
-                <div className="flex items-center gap-3">
-                  <div className="w-[43px] h-[43px] rounded-full relative overflow-hidden bg-neutral-100 shrink-0">
-                    <Image
-                      src={job.caregiverAvatar}
-                      alt={job.caregiverName}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-rubik font-medium text-[16px] text-[#121111]">
-                        {job.caregiverName}
-                      </span>
-                      <CheckCircle2 className="w-4 h-4 text-[#4253F0] fill-[#4253F0] text-white" />
-                    </div>
-                    <div className="flex items-center gap-2 font-rubik text-[14px] text-[#121111]">
-                      <span className="flex items-center gap-1 border-r border-[#121111] pr-2">
-                        <Star className="w-3.5 h-3.5 fill-[#FFC107] text-[#FFC107]" />
-                        <span className="font-light">{job.rating.toFixed(1)} ({job.reviewsCount})</span>
-                      </span>
-                      <span className="font-light">{job.servicesCount} Services</span>
-                    </div>
-                  </div>
-                </div>
+              {/* Price Badge Box */}
+              <div className="bg-[#F1F5F9] rounded-[8px] px-3.5 py-1.5 flex items-center gap-1.5 shrink-0">
+                <BadgeDollarSign className="w-5 h-5 text-[#181818]" />
+                <span className="font-rubik font-bold text-[20px] leading-[24px] text-[#181818]">
+                  {job.price}
+                </span>
+              </div>
+            </div>
 
-                {/* View Location Link (Only for non-completed jobs) */}
-                {!isCompletedCard && (
+            {/* Description */}
+            <p className="font-rubik font-normal text-[14px] leading-[22px] tracking-[-0.005em] text-[#121111]">
+              {job.description}
+            </p>
+
+            {/* Metadata Badges Row */}
+            <div className="flex items-center gap-x-6 gap-y-2 flex-wrap font-rubik text-[13px] text-[#181818]">
+              {job.budgetRange && (
+                <div className="flex items-center gap-1.5">
+                  <BadgeDollarSign className="w-4 h-4 text-[#181818] shrink-0" />
+                  <span>{job.budgetRange}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-[#181818] shrink-0" />
+                <span>{job.time}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-[#181818] shrink-0" />
+                <span>{job.date}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-[#181818] shrink-0" />
+                <span>{job.location}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Navigation className="w-4 h-4 text-[#181818] shrink-0" />
+                <span>{job.distance}</span>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="w-full h-px bg-[#EFEFEF]" />
+
+            {/* Careseeker Information Row */}
+            <div className="flex items-center gap-3">
+              <div className="w-[38px] h-[38px] rounded-full overflow-hidden relative bg-neutral-100 shrink-0">
+                <Image src={job.seekerAvatar} alt={job.seekerName} fill className="object-cover" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-rubik font-medium text-[15px] leading-[18px] text-[#121111]">
+                  {job.seekerName}
+                </span>
+                <div className="flex items-center gap-1.5 font-rubik text-[13px] text-[#565656]">
+                  <Star className="w-3.5 h-3.5 fill-[#FFC107] text-[#FFC107]" />
+                  <span className="font-normal text-[#121111]">{job.seekerRating.toFixed(1)}</span>
+                  <span>({job.seekerReviews})</span>
+                  <span>|</span>
+                  <span>{job.seekerServices} Services</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Row Actions */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2">
+              {/* Left Action Buttons */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => router.push('/chat')}
+                  className="h-[40px] px-6 bg-[#F36922] hover:bg-[#e05813] text-white rounded-full font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-xs flex items-center justify-center"
+                >
+                  Open chat
+                </button>
+                {currentTab === 'upcoming' && (
                   <button
                     type="button"
-                    onClick={() => router.push('/freelance-jobs')}
-                    className="h-[28px] px-2.5 bg-[#F8F9FF] rounded-[8px] font-rubik font-normal text-[15px] text-[#0A0A6E] underline flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer border-none"
+                    onClick={() => {
+                      setTargetCancelJobId(job.id);
+                      setCancelModalStep(1);
+                    }}
+                    className="h-[40px] px-6 bg-[#F8F9FF] hover:bg-neutral-100 text-[#121111] rounded-full font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border border-[#EFEFEF] flex items-center justify-center"
                   >
-                    <Navigation className="w-3.5 h-3.5 text-[#0A0A6E]" />
-                    <span>View Location on Map</span>
+                    Cancel Job
                   </button>
                 )}
               </div>
+
+              {/* Right Action Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (onSelectJob) {
+                    onSelectJob(job.id);
+                  } else {
+                    router.push(`/my-jobs/${job.id}?status=${currentTab}`);
+                  }
+                }}
+                className="h-[40px] px-6 bg-[#0A0A6E] hover:bg-[#080856] text-white rounded-full font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-xs flex items-center justify-center gap-2 shrink-0"
+              >
+                <span>View Job Details</span>
+                <ArrowRight className="w-4 h-4 text-white" />
+              </button>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={cancelModalStep > 0} onOpenChange={(open) => !open && setCancelModalStep(0)}>
+        <DialogContent className="sm:max-w-[420px] bg-white rounded-2xl p-6 border-none shadow-xl">
+          <DialogTitle className="font-rubik font-semibold text-[18px] text-[#121111] text-center">
+            {cancelModalStep === 1 ? 'Cancel Job Confirmation' : 'Job Cancelled'}
+          </DialogTitle>
+          <DialogDescription className="font-rubik font-light text-[14px] text-[#3D3D3D] text-center mt-2">
+            {cancelModalStep === 1
+              ? 'Are you sure you want to cancel this scheduled upcoming job? The careseeker will be notified.'
+              : 'The upcoming job has been successfully cancelled.'}
+          </DialogDescription>
+
+          <div className="flex gap-3 justify-center mt-6">
+            {cancelModalStep === 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setCancelModalStep(0)}
+                  className="px-5 py-2.5 rounded-xl border border-neutral-200 font-rubik text-[14px] hover:bg-neutral-50 transition cursor-pointer"
+                >
+                  Keep Job
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCancelModalStep(2)}
+                  className="px-5 py-2.5 rounded-xl bg-[#C81E1E] text-white font-rubik text-[14px] hover:bg-red-700 transition cursor-pointer border-none"
+                >
+                  Confirm Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setCancelModalStep(0)}
+                className="px-6 py-2.5 rounded-xl bg-[#0A0A6E] text-white font-rubik text-[14px] hover:bg-[#080856] transition cursor-pointer border-none"
+              >
+                Close
+              </button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
