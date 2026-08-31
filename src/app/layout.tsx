@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 
 import QueryProvider from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { TopProgressBar } from "@/components/common/top-progress-bar";
 
 export default function RootLayout({
   children,
@@ -32,6 +33,7 @@ export default function RootLayout({
       className={`${rubik.variable} ${poppins.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        <TopProgressBar />
         <QueryProvider>
           {children}
           <Toaster />

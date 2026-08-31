@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import ChatPopup from './chat-popup';
+import InstantJobsDropdown from './instant-jobs-dropdown';
 import { Switch } from '@/components/ui/switch';
 import { getRole, updateRole } from '@/lib/cookies';
 
@@ -72,12 +73,12 @@ function Home() {
       link: '/my-services',
       description: "View, edit, and manage all your existing service listings in one place. Update service details, adjust availability, and create new services to attract more care seekers and grow your business.",
     },
-    {
-      title: 'Browse Available Jobs',
-      image: '/giver/find.webp',
-      link: '/freelance-jobs',
-      description: "Explore job opportunities posted by care seekers. Filter by location, category, date, and pay rate to find opportunities that match your expertise and availability.",
-    },
+    // {
+    //   title: 'Browse Available Jobs',
+    //   image: '/giver/find.webp',
+    //   link: '/freelance-jobs',
+    //   description: "Explore job opportunities posted by care seekers. Filter by location, category, date, and pay rate to find opportunities that match your expertise and availability.",
+    // },
     {
       title: 'Get Jobs in Real Time',
       image: '/giver/instant.webp',
@@ -135,7 +136,7 @@ function Home() {
                   <div className="w-[236px] h-[150px] relative shrink-0">
                     <Image src={card.image} alt={card.title} fill className="object-contain" />
                   </div>
-                  <h3 className="font-poppins font-medium text-[24px] text-[#0A0A6E] text-center leading-[36px]">
+                  <h3 className="font-poppins p-2 font-medium text-[24px] text-[#0A0A6E] text-center leading-[36px]">
                     {card.title}
                   </h3>
                 </div>
@@ -168,9 +169,13 @@ function Home() {
             <p className="font-poppins font-normal text-[14px] text-[#0A0A6E] leading-[21px] tracking-[-0.01em]">
               Switch between Care Seeker and Caregiver modes at any time and enjoy the full flexibility of the platform from a single account
             </p>
-          </div>
 
+            {/* Instant Jobs Card below Switch Card (Caregiver Mode) */}
+          </div>
         </div>
+          <div className='w-full flex justify-end max-w-[1080px] mx-auto'>
+            {isCaregiver && <InstantJobsDropdown />}
+</div>
       </div>
 
       {/* Floating Chat Button */}

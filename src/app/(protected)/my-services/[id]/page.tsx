@@ -3,27 +3,33 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import useEmblaCarousel from 'embla-carousel-react';
 import {
   ChevronRight,
   ArrowLeft,
   ChevronLeft,
-  Edit,
-  Copy,
+  Pencil,
+  Link as LinkIcon,
   Star,
   Check,
 } from 'lucide-react';
+import { ActiveToggleBox } from '@/components/common/active-toggle-box';
+import { toast } from 'sonner';
 
 export default function MyServiceDetailPage() {
   const router = useRouter();
+  const params = useParams();
+  const serviceId = (params?.id as string) || '1';
+
   const [activeImgIdx, setActiveImgIdx] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isActive, setIsActive] = useState(true);
 
   const images = [
     '/images/home/search.webp',
-    '/images/home/search.webp',
-    '/images/home/search.webp',
+    '/images/home/find.webp',
+    '/images/home/find.webp',
   ];
 
   // Embla Carousel Integration
@@ -62,23 +68,32 @@ export default function MyServiceDetailPage() {
     if (typeof window !== 'undefined') {
       navigator.clipboard.writeText(window.location.href);
       setCopiedLink(true);
+      toast.success('Service link copied to clipboard!');
       setTimeout(() => setCopiedLink(false), 2000);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FEF0E9] flex flex-col w-full items-center">
-      <div className="w-full max-w-[1440px] px-4 sm:px-[80px] pt-[30px] pb-[80px] flex flex-col gap-[24px] items-center">
+    <div className="min-h-screen bg-[#FEF0E9] flex flex-col w-full items-center pb-24">
+      <div className="w-full max-w-[1440px] px-4 sm:px-[80px] pt-8 flex flex-col gap-6 items-center">
+        
         {/* Top Share Service Banner */}
-        <div className="w-full max-w-[1280px] bg-[#ECF0FF] border border-[#D0E2FF] rounded-[12px] p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-
-            <Image src={"/giver/ser.webp"} alt="services" width={100} height={100} />
-            <div className="flex flex-col gap-4 ml-8">
-              <h3 className="font-rubik font-medium text-[20px] text-[#121111]">
+        <div className="w-full max-w-[1280px] bg-[#ECF3FF] border border-[#D0E2FF] rounded-[16px] p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xs">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24  rounded-xl flex items-center justify-center shrink-0 ">
+              <Image
+                src="/giver/ser.webp"
+                alt="Texas Caregiver"
+                width={336}
+                height={336}
+                className="object-contain"
+              />
+            </div>
+            <div className="flex flex-col">
+              <h3 className="font-rubik font-semibold text-[16px] sm:text-[18px] text-[#121111]">
                 Share your service to other to bring in more clients.
               </h3>
-              <p className="font-rubik font-light text-[13px] text-[#565656]">
+              <p className="font-rubik font-normal text-[13px] text-[#565656]">
                 Share your service with others via link sharing.
               </p>
             </div>
@@ -87,7 +102,7 @@ export default function MyServiceDetailPage() {
           <button
             type="button"
             onClick={handleCopyLink}
-            className="h-[40px] px-4 bg-white border border-[#E4E4E7] hover:bg-neutral-50 rounded-[8px] font-rubik font-medium text-[14px] text-[#121111] flex items-center gap-2 transition cursor-pointer shrink-0 shadow-xs"
+            className="h-[42px] px-5 bg-white border border-[#EFEFEF] hover:bg-neutral-50 rounded-[10px] font-rubik font-medium text-[14px] text-[#121111] flex items-center gap-2 transition cursor-pointer shrink-0 shadow-xs"
           >
             {copiedLink ? (
               <>
@@ -96,7 +111,7 @@ export default function MyServiceDetailPage() {
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4 text-[#121111]" />
+                <LinkIcon className="w-4 h-4 text-[#565656]" />
                 <span>Copy Service Link</span>
               </>
             )}
@@ -104,64 +119,80 @@ export default function MyServiceDetailPage() {
         </div>
 
         {/* Breadcrumb Navigation */}
-        <div className="w-full max-w-[1280px] flex items-center gap-[10px] font-rubik text-[16px] text-[#3D3D3D]">
+        <div className="w-full max-w-[1280px] flex items-center gap-2 font-rubik text-[15px] text-[#565656]">
           <button
             type="button"
             onClick={() => router.back()}
-            className="w-[24px] h-[24px] flex items-center justify-center text-[#121111] hover:opacity-80 transition cursor-pointer border-none bg-transparent mr-1"
+            className="w-[36px] h-[36px] bg-white text-[#121111] border border-[#EFEFEF] rounded-full flex items-center justify-center hover:bg-neutral-50 transition cursor-pointer shadow-xs mr-2"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <Link href="/" className="hover:text-[#F36922] transition text-[#3D3D3D]">
+          <Link href="/" className="hover:text-[#F36922] transition text-[#565656]">
             Home
           </Link>
-          <ChevronRight className="w-5 h-5 text-[#3D3D3D]" />
-          <span className="font-normal text-[#121111]">My Services Details</span>
+          <ChevronRight className="w-4 h-4 text-[#727272]" />
+          <Link href="/my-services" className="hover:text-[#F36922] transition text-[#565656]">
+            My Services
+          </Link>
+          <ChevronRight className="w-4 h-4 text-[#727272]" />
+          <span className="font-medium text-[#121111]">My Services Details</span>
         </div>
 
         {/* Service Header Row */}
         <div className="w-full max-w-[1280px] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="font-rubik font-semibold text-[22px] sm:text-[24px] leading-tight tracking-[-0.408px] text-[#121111] max-w-[800px]">
+          <h1 className="font-rubik font-semibold text-[22px] sm:text-[26px] leading-tight tracking-[-0.408px] text-[#121111] max-w-[850px]">
             Professional Home Cleaning Services Making Your Home Sparkle
           </h1>
 
           <Link
-            href="/create-job?edit=1"
-            className="h-[40px] px-4 bg-white border border-[#E4E4E7] hover:bg-neutral-50 rounded-[8px] font-rubik font-medium text-[14px] text-[#0A0A6E] flex items-center gap-2 transition cursor-pointer shrink-0 shadow-xs border-none"
+            href={`/create-job?edit=${serviceId}`}
+            className="h-[42px] px-5 bg-white border border-[#EFEFEF] hover:bg-neutral-50 rounded-[10px] font-rubik font-medium text-[14px] text-[#0A0A6E] flex items-center gap-2 transition cursor-pointer shrink-0 shadow-xs"
           >
-            <Edit className="w-4 h-4 text-[#0A0A6E]" />
+            <Pencil className="w-4 h-4 text-[#0A0A6E]" />
             <span>Edit your Service</span>
           </Link>
         </div>
 
-        {/* Caregiver Info */}
-        <div className="w-full max-w-[1280px] flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full relative overflow-hidden bg-neutral-200 shrink-0">
-            <Image
-              src="/images/avatar.webp"
-              alt="Nandi Bolard"
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-rubik font-medium text-[15px] text-[#121111]">
-              Nandi Bolard
-            </span>
-            <div className="flex items-center gap-1.5 font-rubik text-[13px] text-[#565656]">
-              <Star className="w-3.5 h-3.5 fill-[#F36922] text-[#F36922]" />
-              <span className="font-semibold text-[#121111]">5.0 (48)</span>
-              <span>| 98 Services</span>
+        {/* Caregiver Info & Active Switch */}
+        <div className="w-full max-w-[1280px] flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-full relative overflow-hidden bg-neutral-200 shrink-0 border border-neutral-100 shadow-xs">
+              <Image
+                src="/images/avatar.webp"
+                alt="Nandi Bolard"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-rubik font-semibold text-[15px] text-[#121111]">
+                Nandi Bolard
+              </span>
+              <div className="flex items-center gap-1.5 font-rubik text-[13px] text-[#565656]">
+                <Star className="w-3.5 h-3.5 fill-[#F36922] text-[#F36922]" />
+                <span className="font-semibold text-[#121111]">5.0 (48)</span>
+                <span>| 98 Services</span>
+              </div>
             </div>
           </div>
+
+          <ActiveToggleBox
+            isActive={isActive}
+            onToggle={(checked) => {
+              setIsActive(checked);
+              toast.success(`Service is now ${checked ? 'Active' : 'Inactive'}`);
+            }}
+          />
         </div>
 
         {/* 2-Column Section */}
         <div className="w-full max-w-[1280px] grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Main Left Content: Embla Gallery Carousel & Description */}
+          
+          {/* Left Column: Gallery Carousel & Description */}
           <div className="lg:col-span-2 flex flex-col gap-6 w-full">
-            {/* Embla Carousel Main Viewport */}
-            <div className="w-full h-[360px] sm:h-[500px] rounded-[16px] relative overflow-hidden bg-white shadow-xs border border-[#E4E4E7] group">
+            
+            {/* Main Image Slider Viewport */}
+            <div className="w-full h-[360px] sm:h-[460px] rounded-[18px] relative overflow-hidden bg-white shadow-sm border border-[#EFEFEF] group">
               <div className="overflow-hidden h-full w-full" ref={emblaRef}>
                 <div className="flex h-full">
                   {images.map((img, idx) => (
@@ -173,7 +204,7 @@ export default function MyServiceDetailPage() {
                         src={img}
                         alt={`Service Image ${idx + 1}`}
                         fill
-                        className="object-contain"
+                        className="object-cover"
                         priority={idx === 0}
                       />
                     </div>
@@ -181,12 +212,12 @@ export default function MyServiceDetailPage() {
                 </div>
               </div>
 
-              {/* Navigation Arrows */}
+              {/* Navigation Floating Arrows */}
               <button
                 type="button"
                 onClick={scrollPrev}
                 aria-label="Previous image"
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-[#121111] rounded-full flex items-center justify-center transition cursor-pointer shadow-md border-none z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/95 hover:bg-white text-[#121111] rounded-full flex items-center justify-center transition cursor-pointer shadow-md border-none z-10"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -194,97 +225,156 @@ export default function MyServiceDetailPage() {
                 type="button"
                 onClick={scrollNext}
                 aria-label="Next image"
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 hover:bg-white text-[#121111] rounded-full flex items-center justify-center transition cursor-pointer shadow-md border-none z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/95 hover:bg-white text-[#121111] rounded-full flex items-center justify-center transition cursor-pointer shadow-md border-none z-10"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Thumbnail Row linked with Embla Carousel */}
+            {/* Thumbnail Row */}
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={scrollPrev}
+                className="w-8 h-8 rounded-full bg-white border border-[#EFEFEF] flex items-center justify-center text-[#565656] hover:bg-neutral-50 transition cursor-pointer shadow-2xs"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
               {images.map((img, idx) => (
                 <div
                   key={idx}
                   onClick={() => scrollTo(idx)}
-                  className={`w-[110px] h-[70px] bg-white rounded-[10px] relative overflow-hidden cursor-pointer transition border-2 ${activeImgIdx === idx
-                    ? 'border-[#F36922] opacity-100'
-                    : 'border-transparent opacity-70 hover:opacity-100'
-                    }`}
+                  className={`w-[110px] h-[75px] rounded-[12px] relative overflow-hidden cursor-pointer transition border-2 ${
+                    activeImgIdx === idx
+                      ? 'border-[#F36922] opacity-100 shadow-xs'
+                      : 'border-transparent opacity-70 hover:opacity-100'
+                  }`}
                 >
-                  <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-contain" />
+                  <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
                 </div>
               ))}
+
+              <button
+                type="button"
+                onClick={scrollNext}
+                className="w-8 h-8 rounded-full bg-white border border-[#EFEFEF] flex items-center justify-center text-[#565656] hover:bg-neutral-50 transition cursor-pointer shadow-2xs"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Description Section */}
-            <div className="w-full flex flex-col gap-3 pt-4">
+            <div className="w-full flex flex-col gap-3 pt-2">
               <h2 className="font-rubik font-semibold text-[18px] text-[#121111]">
                 Description
               </h2>
               <h3 className="font-rubik font-semibold text-[15px] text-[#121111]">
                 Grasping the importance of your cleaning service title is essential for
               </h3>
-              <p className="font-rubik font-light text-[14px] leading-[22px] text-[#121111]/80">
-                Drawing in clients and effectively communicating the core of your offerings. A well-crafted title not only highlights your expertise but also sets the tone for the quality of service you provide. It should reflect the specific cleaning solutions you offer, whether it's residential, commercial, or specialized cleaning. By choosing a title that resonates with your target audience, you can enhance your visibility and attract the right clients who are looking for your unique services.
+              <p className="font-rubik font-normal text-[14px] leading-[22px] text-[#565656]">
+                Drawing in clients and effectively communicating the core of your offerings. A well-crafted title not only highlights your expertise but also sets the tone for the quality of service you provide. It should reflect the specific cleaning solutions you offer, whether it&apos;s residential, commercial, or specialized cleaning. By choosing a title that resonates with your target audience, you can enhance your visibility and attract the right clients who are looking for your unique services.
               </p>
-              <p className="font-rubik font-light text-[14px] leading-[22px] text-[#121111]/80">
-                Drawing in clients and effectively communicating the core of your offerings. A well-crafted title not only highlights your expertise but also sets the tone for the quality of service you provide. It should reflect the specific cleaning solutions you offer, whether it's residential, commercial, or specialized cleaning. By choosing a title that resonates with your target audience, you can enhance your visibility and attract the right clients who are looking for your unique services.
+              <p className="font-rubik font-normal text-[14px] leading-[22px] text-[#565656]">
+                Drawing in clients and effectively communicating the core of your offerings. A well-crafted title not only highlights your expertise but also sets the tone for the quality of service you provide. It should reflect the specific cleaning solutions you offer, whether it&apos;s residential, commercial, or specialized cleaning. By choosing a title that resonates with your target audience, you can enhance your visibility and attract the right clients who are looking for your unique services.
               </p>
             </div>
+
           </div>
 
-          {/* Right Sidebar Cards */}
-          <div className="flex flex-col gap-4 w-full">
-            {/* Card 1: Price */}
-            <div className="w-full bg-white border border-[#E4E4E7] rounded-[12px] p-5 flex items-center justify-between shadow-xs">
-              <span className="font-rubik font-bold text-[24px] text-[#121111]">
-                $10 <span className="text-[14px] font-normal text-gray-500">/Hr</span>
-              </span>
-              <span className="font-rubik font-normal text-[14px] text-[#565656]">
-                Price
-              </span>
-            </div>
+          {/* Right Column: Sticky Sidebar Cards */}
+          <div className="flex flex-col gap-5 w-full">
+            
+            {/* Card 1: Price & Availability Combined */}
+            <div className="w-full bg-white border border-[#EFEFEF] rounded-[20px] p-6 flex flex-col gap-5 shadow-sm">
+              
+              {/* Price Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-[#F4F4F5]">
+                <div className="flex items-baseline gap-1">
+                  <span className="font-rubik font-bold text-[28px] text-[#121111]">$10</span>
+                  <span className="font-rubik font-normal text-[14px] text-[#565656]">/Hr</span>
+                </div>
+                <span className="font-rubik font-medium text-[14px] text-[#565656]">
+                  Price
+                </span>
+              </div>
 
-            {/* Card 2: Availability */}
-            <div className="w-full bg-white border border-[#E4E4E7] rounded-[12px] p-5 flex flex-col gap-3 shadow-xs">
-              <h3 className="font-rubik font-semibold text-[15px] text-[#121111]">
-                Availability
-              </h3>
+              {/* Availability Sub-section */}
+              <div className="flex flex-col gap-3">
+                <h3 className="font-rubik font-semibold text-[15px] text-[#121111]">
+                  Availability
+                </h3>
 
-              <div className="grid grid-cols-2 gap-2">
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
-                  <div
-                    key={day}
-                    className="bg-[#ECF0FF] rounded-[8px] p-2.5 flex flex-col"
-                  >
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-[#ECF1FC] rounded-[10px] p-3 flex flex-col">
                     <span className="font-rubik font-medium text-[13px] text-[#121111]">
-                      {day}
+                      Monday
                     </span>
-                    <span className="font-rubik font-light text-[12px] text-[#565656]">
+                    <span className="font-rubik font-normal text-[12px] text-[#565656] mt-0.5">
                       11Am- 05:30pm
                     </span>
                   </div>
-                ))}
+
+                  <div className="bg-[#ECF1FC] rounded-[10px] p-3 flex flex-col">
+                    <span className="font-rubik font-medium text-[13px] text-[#121111]">
+                      Tuesday
+                    </span>
+                    <span className="font-rubik font-normal text-[12px] text-[#565656] mt-0.5">
+                      11Am- 05:30pm
+                    </span>
+                  </div>
+
+                  <div className="bg-[#ECF1FC] rounded-[10px] p-3 flex flex-col">
+                    <span className="font-rubik font-medium text-[13px] text-[#121111]">
+                      Wednesday
+                    </span>
+                    <span className="font-rubik font-normal text-[12px] text-[#565656] mt-0.5">
+                      11Am- 06:30pm
+                    </span>
+                  </div>
+
+                  <div className="bg-[#ECF1FC] rounded-[10px] p-3 flex flex-col">
+                    <span className="font-rubik font-medium text-[13px] text-[#121111]">
+                      Thursday
+                    </span>
+                    <span className="font-rubik font-normal text-[12px] text-[#565656] mt-0.5">
+                      11Am- 06:30pm
+                    </span>
+                  </div>
+
+                  <div className="bg-[#ECF1FC] rounded-[10px] p-3 flex flex-col col-span-2">
+                    <span className="font-rubik font-medium text-[13px] text-[#121111]">
+                      Friday
+                    </span>
+                    <span className="font-rubik font-normal text-[12px] text-[#565656] mt-0.5">
+                      11Am- 05:30pm
+                    </span>
+                  </div>
+                </div>
               </div>
+
             </div>
 
-            {/* Card 3: Reviews */}
-            <div className="w-full bg-white border border-[#E4E4E7] rounded-[12px] p-5 flex flex-col gap-2 shadow-xs">
+            {/* Card 2: Reviews */}
+            <div className="w-full bg-white border border-[#EFEFEF] rounded-[20px] p-6 flex flex-col gap-2 shadow-sm">
               <h3 className="font-rubik font-semibold text-[15px] text-[#121111]">
                 Reviews
               </h3>
               <div className="flex items-center gap-2">
-                <span className="font-rubik font-bold text-[24px] text-[#121111]">
+                <span className="font-rubik font-bold text-[28px] text-[#121111]">
                   0.0
                 </span>
                 <Star className="w-5 h-5 fill-[#F36922] text-[#F36922]" />
               </div>
-              <span className="font-rubik font-light text-[13px] text-[#565656]">
+              <span className="font-rubik font-normal text-[13px] text-[#565656]">
                 0 Reviews
               </span>
             </div>
+
           </div>
+
         </div>
+
       </div>
     </div>
   );
