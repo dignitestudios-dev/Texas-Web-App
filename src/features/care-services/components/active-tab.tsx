@@ -248,7 +248,7 @@ export function ActiveTab({
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push('/freelance-jobs/1')}
+                  onClick={() => router.push('/my-jobs/1')}
                   className="h-[42px] px-6 bg-[#0A0A6E] hover:bg-[#06064B] text-white font-rubik font-medium text-[14px] rounded-full transition cursor-pointer border-none shadow-xs flex items-center gap-2"
                 >
                   <span>View Job Details</span>
