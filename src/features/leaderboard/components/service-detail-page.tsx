@@ -15,6 +15,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { Caregiver } from '../types/leaderboard.types';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ImageCarouselModal } from '@/features/care-services/components/image-carousel-modal';
+import { getToken } from '@/lib/cookies';
 
 interface ServiceDetailPageProps {
   caregiver: Caregiver;
@@ -46,6 +47,20 @@ export default function ServiceDetailPage({ caregiver }: ServiceDetailPageProps)
   const [isReviewsOpen, setIsReviewsOpen] = useState(false);
   const [selectedThumb, setSelectedThumb] = useState(0);
   const [isCarouselModalOpen, setIsCarouselModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const updateAuth = () => {
+      setIsLoggedIn(!!getToken());
+    };
+    updateAuth();
+    window.addEventListener('authChange', updateAuth);
+    window.addEventListener('roleChange', updateAuth);
+    return () => {
+      window.removeEventListener('authChange', updateAuth);
+      window.removeEventListener('roleChange', updateAuth);
+    };
+  }, []);
 
   // ── Embla: Main carousel ──────────────────────────────────────────────
   const [mainRef, mainApi] = useEmblaCarousel({ loop: true });
@@ -293,14 +308,16 @@ export default function ServiceDetailPage({ caregiver }: ServiceDetailPageProps)
                 </button>
               </div>
 
-              {/* ── Book Service CTA ── */}
-              <button
-                type="button"
-                onClick={handleBookService}
-                className="w-full h-[48px] bg-[#F36922] hover:bg-[#e05813] text-white rounded-[100px] flex items-center justify-center font-poppins font-semibold text-[14px] leading-[120%] capitalize cursor-pointer transition border-none shadow-sm"
-              >
-                Book Service
-              </button>
+              {/* ── Book Service CTA (Only visible if logged in) ── */}
+              {isLoggedIn && (
+                <button
+                  type="button"
+                  onClick={handleBookService}
+                  className="w-full h-[48px] bg-[#F36922] hover:bg-[#e05813] text-white rounded-[100px] flex items-center justify-center font-poppins font-semibold text-[14px] leading-[120%] capitalize cursor-pointer transition border-none shadow-sm"
+                >
+                  Book Service
+                </button>
+              )}
             </div>
 
             {/* 2. Availability */}

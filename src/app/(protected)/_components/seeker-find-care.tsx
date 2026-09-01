@@ -8,8 +8,6 @@ import {
   ChevronRight,
   Locate,
   AlertTriangle,
-  Plus,
-  Minus,
 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +23,15 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import ProposalSection, { Proposal } from './proposal-section';
 import JobDialogs from './job-dialogs';
+import { AuthGuardDialog } from '@/components/common/auth-guard-dialog';
+import {
+  RequestSentDialog,
+  AssignCaregiverDialog,
+  InstantRequestFeeDialog,
+  CaregiverAssignedDialog,
+} from './instant-job-dialogs';
+import { getToken } from '@/lib/cookies';
+import { toast } from 'sonner';
 
 const PROPOSALS_DATA: Proposal[] = [
   {
@@ -72,7 +79,8 @@ const CITIES = [
 const jobSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   location: z.string().min(1, 'Location is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters long'),
+  price: z.string().min(1, 'Please enter offer price'),
+  description: z.string().min(1, 'Description is required'),
 });
 
 type JobFormValues = z.infer<typeof jobSchema>;
@@ -84,9 +92,14 @@ export default function SeekerFindCarePage() {
   const [proposalsCount, setProposalsCount] = useState(0);
   const [zoomLevel, setZoomLevel] = useState(7);
   const [selectedCaregiver, setSelectedCaregiver] = useState<Proposal | null>(null);
-  const [showAssignModal, setShowAssignModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // Dialog states for the multi-step flow
+  const [showRequestSentDialog, setShowRequestSentDialog] = useState(false);
+  const [showAssignCaregiverDialog, setShowAssignCaregiverDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showAssignedDialog, setShowAssignedDialog] = useState(false);
   const [showCancelJobModal, setShowCancelJobModal] = useState(false);
+  const [isAuthGuardOpen, setIsAuthGuardOpen] = useState(false);
 
   const {
     register,
@@ -101,25 +114,30 @@ export default function SeekerFindCarePage() {
     defaultValues: {
       category: '',
       location: '',
+      price: '',
       description: '',
     },
   });
 
   const location = watch('location');
 
-  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 1, 18));
-  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 1, 3));
-
+  // 1. On Create Job: Show Request Sent Dialog for 2 seconds, then load all proposals
   const onSubmit = (data: JobFormValues) => {
+    // Check if user is logged in
+    if (!getToken()) {
+      setIsAuthGuardOpen(true);
+      return;
+    }
+
     console.log('Submitting Seeker Job Data:', data);
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setJobCreated(true);
-      setTimeout(() => {
-        setProposalsCount(3);
-      }, 3500);
-    }, 2000);
+    setShowRequestSentDialog(true);
+  };
+
+  const handleRequestSentComplete = () => {
+    setShowRequestSentDialog(false);
+    setJobCreated(true);
+    setProposalsCount(3);
+    toast.success('Instant job request sent! Nearby caregivers have responded.');
   };
 
   const getMapQuery = () => {
@@ -132,9 +150,9 @@ export default function SeekerFindCarePage() {
   const mapZoom = location ? 12 : zoomLevel;
 
   return (
-    <div className="min-h-screen bg-[#FFF6F0] flex flex-col relative w-full overflow-x-hidden">
+    <div className="min-h-screen bg-[#FFF6F0] flex flex-col relative w-full overflow-x-hidden select-none">
       {/* Main content container */}
-      <div className="relative z-20 w-full flex flex-col items-center pt-[30px] px-8 lg:px-[150px] gap-[30px] pb-[100px]">
+      <div className="relative z-20 w-full flex flex-col items-center pt-[30px] px-4 sm:px-8 lg:px-[150px] gap-[30px] pb-[100px]">
         {/* Breadcrumb & Title Section */}
         <div className="w-full max-w-7xl flex flex-col gap-[20px]">
           {/* Back Button & Breadcrumbs */}
@@ -150,7 +168,7 @@ export default function SeekerFindCarePage() {
                 Home
               </Link>
               <ChevronRight className="w-5 h-5 text-[#3D3D3D]" />
-              <span className="font-normal">Instant Job Request</span>
+              <span className="font-normal text-[#121111]">Instant Job Request</span>
             </div>
           </div>
 
@@ -165,7 +183,7 @@ export default function SeekerFindCarePage() {
           </div>
 
           {/* Alert Banner */}
-          <div className="flex items-center gap-[8px] rounded-lg w-full select-none">
+          <div className="flex items-center gap-[8px] rounded-lg w-full">
             <AlertTriangle className="text-[#F36922] w-5 h-5 shrink-0" />
             <span className="font-rubik text-[14px] text-black tracking-[-0.408px] leading-[17px]">
               <strong className="font-medium mr-1 text-[#000000]">Your First Instant Job Request is Free</strong>
@@ -177,9 +195,9 @@ export default function SeekerFindCarePage() {
         </div>
 
         {/* Content Layout (Form & Map) */}
-        <div className="w-full max-w-[1280px] flex flex-col lg:flex-row gap-[12px] h-auto lg:h-[758px]">
+        <div className="w-full max-w-[1280px] flex flex-col lg:flex-row gap-[16px] h-auto items-start">
           {/* Left Column (Proposals & Form) */}
-          <div className="w-full lg:w-[362px] flex flex-col gap-[12px] shrink-0">
+          <div className="w-full lg:w-[380px] flex flex-col gap-[16px] shrink-0">
             {/* Proposals Card Component */}
             <ProposalSection
               jobCreated={jobCreated}
@@ -187,59 +205,61 @@ export default function SeekerFindCarePage() {
               proposalsCount={proposalsCount}
               selectedCaregiver={selectedCaregiver}
               setSelectedCaregiver={setSelectedCaregiver}
-              setShowAssignModal={setShowAssignModal}
+              setShowAssignModal={setShowAssignCaregiverDialog}
               proposalsData={PROPOSALS_DATA}
             />
 
-            {/* Create Job Form Card */}
+            {/* Create Job Form Card (Matching Provided Figma UI) */}
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="w-full h-[373px] bg-white border border-dashed border-[#F36922]/50 rounded-[24px] p-[16px_24px] flex flex-col justify-between shadow-sm shrink-0"
+              className="w-full bg-white border-2 border-dashed border-[#F36922]/40 rounded-[24px] p-5 sm:p-6 flex flex-col gap-4 shadow-sm shrink-0"
             >
-              {/* Category Select */}
-              <div className="flex flex-col gap-[4px] w-full">
-                <label className="font-sans font-medium text-[14px] leading-[19px] text-[#181818] capitalize">
-                  Category*
+              {/* Field 1: Category* */}
+              <div className="flex flex-col gap-1.5 w-full">
+                <label className="font-rubik font-medium text-[14px] leading-[18px] text-[#181818]">
+                  Category<span className="text-[#F36922]">*</span>
                 </label>
                 <Controller
                   name="category"
                   control={control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-full h-[44px] bg-[#FAFAFA] border-neutral-100 px-3 text-[#727272] text-[14px] flex items-center justify-between rounded-lg cursor-pointer">
-                        <SelectValue placeholder="Select Category" />
+                      <SelectTrigger className="w-full h-[46px] bg-[#F8F9FF] border border-[#EFEFEF] px-3.5 text-[#121111] text-[14px] font-rubik flex items-center justify-between rounded-[12px] cursor-pointer">
+                        <SelectValue placeholder="Category" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white border border-neutral-100 rounded-lg shadow-md max-h-[200px] overflow-y-auto z-40">
+                      <SelectContent className="bg-white border border-neutral-100 rounded-[12px] shadow-lg max-h-[220px] overflow-y-auto z-40">
                         <SelectItem value="companion">Companion Care</SelectItem>
                         <SelectItem value="personal">Personal Care</SelectItem>
                         <SelectItem value="respite">Respite Care</SelectItem>
                         <SelectItem value="specialized">Specialized Care</SelectItem>
+                        <SelectItem value="childcare">Child Care</SelectItem>
+                        <SelectItem value="nursing">Nursing Care</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
                 {errors.category && (
-                  <p className="text-red-500 text-[11px] leading-[11px] font-sans font-medium">
+                  <p className="text-red-500 text-[12px] font-rubik mt-0.5">
                     {errors.category.message}
                   </p>
                 )}
               </div>
 
-              {/* Location Select */}
-              <div className="flex flex-col gap-[4px] w-full">
-                <label className="font-sans font-medium text-[14px] leading-[19px] text-[#181818] capitalize">
-                  Location*
+              {/* Field 2: Location */}
+              <div className="flex flex-col gap-1.5 w-full">
+                <label className="font-rubik font-medium text-[14px] leading-[18px] text-[#181818]">
+                  Location
                 </label>
-                <div className="relative w-full h-[44px] bg-[#FAFAFA] rounded-lg border border-neutral-100 flex items-center">
+                <div className="relative w-full h-[46px] bg-[#F8F9FF] rounded-[12px] border border-[#EFEFEF] flex items-center">
                   <Controller
                     name="location"
                     control={control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full h-full bg-[#FAFAFA] border-neutral-100 px-3 text-[#727272] text-[14px] flex items-center justify-between rounded-lg pr-10 cursor-pointer">
-                          <SelectValue placeholder="Select Location" />
+                        <SelectTrigger className="w-full h-full bg-transparent border-none px-3.5 text-[#121111] text-[14px] font-rubik flex items-center justify-between rounded-[12px] pr-10 cursor-pointer outline-none">
+                          <SelectValue placeholder="Location" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-neutral-100 rounded-lg shadow-md max-h-[200px] overflow-y-auto z-40">
+                        <SelectContent className="bg-white border border-neutral-100 rounded-[12px] shadow-lg max-h-[220px] overflow-y-auto z-40">
                           <SelectItem value="austin">Austin, TX</SelectItem>
                           <SelectItem value="houston">Houston, TX</SelectItem>
                           <SelectItem value="dallas">Dallas, TX</SelectItem>
@@ -248,66 +268,75 @@ export default function SeekerFindCarePage() {
                       </Select>
                     )}
                   />
-                  <Locate className="w-5 h-5 text-[#F36922] absolute right-3 pointer-events-none" />
+                  <Locate className="w-5 h-5 text-[#F36922] absolute right-3.5 pointer-events-none" />
                 </div>
                 {errors.location && (
-                  <p className="text-red-500 text-[11px] leading-[11px] font-sans font-medium">
+                  <p className="text-red-500 text-[12px] font-rubik mt-0.5">
                     {errors.location.message}
                   </p>
                 )}
               </div>
 
-              {/* Description Input */}
-              <div className="flex flex-col gap-[4px] w-full">
-                <label className="font-sans font-medium text-[14px] leading-[19px] text-[#181818] capitalize">
-                  Description*
+              {/* Field 3: Offer your Price */}
+              <div className="flex flex-col gap-1.5 w-full">
+                <label className="font-rubik font-medium text-[14px] leading-[18px] text-[#181818]">
+                  Offer your Price
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Amount"
+                  {...register('price')}
+                  className="w-full h-[46px] bg-[#F8F9FF] border border-[#EFEFEF] px-3.5 text-[#121111] font-rubik text-[14px] rounded-[12px] placeholder:text-[#A3A3A3] outline-none focus:border-[#F36922] transition-colors"
+                />
+                {errors.price && (
+                  <p className="text-red-500 text-[12px] font-rubik mt-0.5">
+                    {errors.price.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Field 4: Description */}
+              <div className="flex flex-col gap-1.5 w-full">
+                <label className="font-rubik font-medium text-[14px] leading-[18px] text-[#181818]">
+                  Description
                 </label>
                 <Textarea
                   {...register('description')}
-                  placeholder="Describe the care requirements..."
-                  className="w-full h-[80px] min-h-[80px] bg-[#FAFAFA] border-neutral-100 p-3 text-[#727272] text-[14px] leading-[18px] rounded-lg resize-none placeholder:text-[#A3A3A3] focus:outline-none focus:ring-1 focus:ring-[#F36922]"
+                  placeholder="Description"
+                  className="w-full h-[88px] min-h-[88px] bg-[#F8F9FF] border border-[#EFEFEF] p-3.5 text-[#121111] font-rubik text-[14px] leading-[20px] rounded-[12px] resize-none placeholder:text-[#A3A3A3] focus:outline-none focus:border-[#F36922] transition-colors"
                 />
                 {errors.description && (
-                  <p className="text-red-500 text-[11px] leading-[11px] font-sans font-medium">
+                  <p className="text-red-500 text-[12px] font-rubik mt-0.5">
                     {errors.description.message}
                   </p>
                 )}
               </div>
 
               {/* Form Buttons */}
-              <div className="flex gap-[8px] w-full">
+              <div className="flex flex-col gap-2 w-full pt-1">
                 {jobCreated ? (
                   <button
                     type="button"
                     onClick={() => setShowCancelJobModal(true)}
-                    className="w-full h-[40px] bg-[#F8F9FF] border border-[#EFEFEF] hover:bg-neutral-100 text-[#121111] font-sans font-medium text-[14px] rounded-lg transition duration-200 cursor-pointer border-none shadow-xs"
+                    className="w-full h-[48px] bg-[#F8F9FF] border border-[#EFEFEF] hover:bg-neutral-100 text-[#121111] font-rubik font-medium text-[15px] rounded-[14px] transition duration-200 cursor-pointer shadow-2xs"
                   >
                     Cancel Job
                   </button>
                 ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => reset()}
-                      className="w-1/2 h-[40px] border border-neutral-200 bg-white hover:bg-neutral-50 text-[#181818] font-sans font-medium text-[14px] rounded-lg transition duration-200 cursor-pointer"
-                    >
-                      Clear
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-1/2 h-[40px] bg-[#F36922] hover:bg-[#e05813] text-white font-sans font-medium text-[14px] rounded-lg transition duration-200 cursor-pointer border-none shadow-xs disabled:opacity-50"
-                    >
-                      {isSubmitting ? 'Posting...' : 'Create Job'}
-                    </button>
-                  </>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full h-[48px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-semibold text-[16px] rounded-[14px] transition duration-200 cursor-pointer border-none shadow-sm disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {isSubmitting ? 'Creating Job...' : 'Create Job'}
+                  </button>
                 )}
               </div>
             </form>
           </div>
 
           {/* Right Column (Map View) */}
-          <div className="w-full lg:w-[906px] h-[500px] lg:h-[758px] bg-white rounded-[24px] border border-neutral-200 overflow-hidden relative shadow-sm shrink-0">
+          <div className="w-full lg:flex-1 h-[550px] lg:h-[720px] bg-white rounded-[24px] border border-neutral-200 overflow-hidden relative shadow-sm shrink-0">
             <iframe
               title="Google Map Texas"
               width="100%"
@@ -317,73 +346,83 @@ export default function SeekerFindCarePage() {
               allowFullScreen
               src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=${mapZoom}&output=embed`}
             />
-
-            {/* Custom Map Markers Overlay */}
-            {CITIES.map((city) => (
-              <div
-                key={city.id}
-                style={{ top: city.top, left: city.left }}
-                onClick={() => setValue('location', city.id)}
-                className={`absolute transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-lg transition-transform duration-200 cursor-pointer select-none ${
-                  location === city.id
-                    ? 'bg-[#F36922] text-white scale-110 z-30'
-                    : 'bg-white/90 text-[#181818] hover:scale-105 z-20 border border-neutral-100'
-                }`}
-              >
-                <div
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    location === city.id ? 'bg-white animate-ping' : 'bg-[#F36922]'
-                  }`}
-                />
-                <span className="font-sans font-medium text-[12px]">{city.name}</span>
-              </div>
-            ))}
-
-            {/* Map Controls (Zoom buttons) */}
-            <div className="absolute right-4 bottom-6 flex flex-col gap-2 z-30 select-none">
-              <button
-                type="button"
-                onClick={handleZoomIn}
-                className="w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-neutral-50 transition border border-neutral-100 cursor-pointer outline-none"
-              >
-                <Plus className="w-5 h-5 text-[#181818]" />
-              </button>
-              <button
-                type="button"
-                onClick={handleZoomOut}
-                className="w-10 h-10 bg-white rounded-lg shadow-md flex items-center justify-center hover:bg-neutral-50 transition border border-neutral-100 cursor-pointer outline-none"
-              >
-                <Minus className="w-5 h-5 text-[#181818]" />
-              </button>
-            </div>
           </div>
         </div>
-
-        {/* Dialogs & Modals */}
-        <JobDialogs
-          showCancelJobModal={showCancelJobModal}
-          setShowCancelJobModal={setShowCancelJobModal}
-          showAssignModal={showAssignModal}
-          setShowAssignModal={setShowAssignModal}
-          showSuccessModal={showSuccessModal}
-          setShowSuccessModal={setShowSuccessModal}
-          onCancelJobConfirm={() => {
-            setShowCancelJobModal(false);
-            setJobCreated(false);
-            setProposalsCount(0);
-            setSelectedCaregiver(null);
-            reset();
-          }}
-          onAssignConfirm={() => {
-            setShowAssignModal(false);
-            setShowSuccessModal(true);
-          }}
-          onSuccessClose={() => {
-            setShowSuccessModal(false);
-            router.push('/my-jobs');
-          }}
-        />
       </div>
+
+      {/* Auth Guard Dialog (Prompts Login/Signup when guest user attempts to create a job) */}
+      <AuthGuardDialog
+        isOpen={isAuthGuardOpen}
+        onClose={() => setIsAuthGuardOpen(false)}
+        title="Sign Up To Post Instant Job!"
+        description="You're currently browsing as a guest. Please sign up or log in to create and broadcast an instant care request."
+        loginRedirect="/login"
+        signupRedirect="/role"
+      />
+
+      {/* Dialog 1: Request Sent Dialog (shows for 2 sec after clicking Create Job) */}
+      <RequestSentDialog
+        open={showRequestSentDialog}
+        onOpenChange={setShowRequestSentDialog}
+        autoCloseMs={2000}
+        onComplete={handleRequestSentComplete}
+      />
+
+      {/* Dialog 2: Assign Caregiver Confirmation Dialog (opens when clicking Assign Job) */}
+      <AssignCaregiverDialog
+        open={showAssignCaregiverDialog}
+        onOpenChange={setShowAssignCaregiverDialog}
+        onCancel={() => setShowAssignCaregiverDialog(false)}
+        onContinueToPayment={() => {
+          setShowAssignCaregiverDialog(false);
+          setShowPaymentDialog(true);
+        }}
+      />
+
+      {/* Dialog 3: Instant Request Fee ($10.00) Payment Dialog */}
+      <InstantRequestFeeDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        onPayNow={() => {
+          setShowPaymentDialog(false);
+          setShowAssignedDialog(true);
+        }}
+      />
+
+      {/* Dialog 4: Caregiver Assigned Success Dialog */}
+      <CaregiverAssignedDialog
+        open={showAssignedDialog}
+        onOpenChange={setShowAssignedDialog}
+        caregiverName={selectedCaregiver?.name || 'Peter Parker'}
+        onMessageCaregiver={() => {
+          setShowAssignedDialog(false);
+          router.push('/chat');
+        }}
+        onViewJob={() => {
+          setShowAssignedDialog(false);
+          router.push('/my-jobs/act-1?status=ongoing');
+        }}
+      />
+
+      {/* Cancel Job Confirmation Modal */}
+      <JobDialogs
+        showCancelJobModal={showCancelJobModal}
+        setShowCancelJobModal={setShowCancelJobModal}
+        showAssignModal={false}
+        setShowAssignModal={() => {}}
+        showSuccessModal={false}
+        setShowSuccessModal={() => {}}
+        onCancelJobConfirm={() => {
+          setJobCreated(false);
+          setProposalsCount(0);
+          setSelectedCaregiver(null);
+          setShowCancelJobModal(false);
+          reset();
+          toast.info('Instant job has been cancelled.');
+        }}
+        onAssignConfirm={() => {}}
+        onSuccessClose={() => {}}
+      />
     </div>
   );
 }

@@ -14,8 +14,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const isCreateProfile = pathname?.includes('create-profile');
-  // Show side image on all auth pages for both roles, and on create-profile only for seekers
-  const showSideImage = !isCreateProfile || role === 'seeker';
+  // Profile creation pages use the full-screen layout with top-left logo
+  const showSideImage = !isCreateProfile;
 
   return (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-[#FEF0E9] font-sans">

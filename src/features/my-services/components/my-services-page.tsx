@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, ChevronRight, Search, Calendar } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Search, Calendar, SlidersHorizontal } from 'lucide-react';
 import { MyServicesSidebar } from './my-services-sidebar';
+import { SeekerExploreTab } from './seeker-explore-tab';
 import { ServicesTab } from './services-tab';
 import { RequestsTab } from './requests-tab';
 import { ActiveTab } from './active-tab';
@@ -15,17 +16,37 @@ import {
   ActiveJobsSubTab,
   HistorySubTab,
 } from '../types/my-services.types';
+import { getRole, UserRole } from '@/lib/cookies';
 
 export function MyServicesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Role detection
+  const [role, setRole] = useState<UserRole>('seeker');
+
+  useEffect(() => {
+    const updateRole = () => {
+      const r = getRole() || 'seeker';
+      setRole(r);
+    };
+    updateRole();
+    window.addEventListener('roleChange', updateRole);
+    return () => window.removeEventListener('roleChange', updateRole);
+  }, []);
+
+  const isSeeker = role === 'seeker';
+
   // Primary side-tab from URL search params
   const rawTab = searchParams.get('tab') as SidebarTab | null;
   const currentTab: SidebarTab =
-    rawTab && ['services', 'requests', 'active', 'history'].includes(rawTab)
-      ? rawTab
-      : 'services';
+    rawTab && ['explore', 'services', 'requests', 'active', 'history'].includes(rawTab)
+      ? isSeeker && rawTab === 'services'
+        ? 'explore'
+        : rawTab
+      : isSeeker
+        ? 'explore'
+        : 'services';
 
   // Inner sub-tab from URL search params
   const rawSubTab = searchParams.get('subTab');
@@ -66,15 +87,15 @@ export function MyServicesPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#FEF0E9] flex flex-col relative w-full pb-20 items-center">
+    <div className="min-h-screen overflow-x-hidden bg-[#FEF0E9] flex flex-col relative w-full pb-20 items-center select-none">
       {/* Main Container */}
-      <div className="w-full max-w-[1440px] px-4 sm:px-[80px] pt-[30px] flex flex-col gap-6 items-center">
+      <div className="w-full max-w-[1440px] px-4 sm:px-8 lg:px-[100px] pt-[30px] flex flex-col gap-6 items-center">
         
         {/* Header Controls Block */}
         <div className="w-full max-w-[1280px] flex flex-col gap-5 shrink-0 bg-transparent">
           
           {/* Row 1: Back arrow + Breadcrumbs (Left) and Action Button (Right) */}
-          <div className="flex flex-row justify-between items-center w-full">
+          <div className="flex flex-row justify-between items-center w-full gap-4">
             <div className="flex items-center gap-[16px] h-[48px]">
               <button
                 type="button"
@@ -88,12 +109,22 @@ export function MyServicesPage() {
                   Home
                 </Link>
                 <ChevronRight className="w-5 h-5 text-[#3D3D3D]" />
-                <span className="font-normal text-[#121111]">Manage Your Services</span>
+                <span className="font-normal text-[#121111]">
+                  {isSeeker ? 'Care Services' : 'Manage Your Services'}
+                </span>
               </div>
             </div>
 
-            {/* Right Action Button: Create New Service on Services tab, View Your Calendar on other tabs */}
-            {currentTab === 'services' ? (
+            {/* Right Action Button: Filters in Seeker mode, Create New Service / Calendar in Giver mode */}
+            {isSeeker ? (
+              <button
+                type="button"
+                className="flex flex-row justify-center items-center py-3 px-6 h-[48px] rounded-full bg-[#F36922] hover:bg-[#e05813] text-white cursor-pointer transition shrink-0 shadow-sm font-rubik font-medium text-[15px] gap-2 border-none"
+              >
+                <span>Filters</span>
+                <SlidersHorizontal className="w-4 h-4" />
+              </button>
+            ) : currentTab === 'services' ? (
               <Link
                 href="/create-job"
                 className="box-border flex flex-row justify-center items-center py-3 px-6 h-[48px] rounded-[12px] bg-[#F36922] hover:bg-[#e05813] text-white cursor-pointer transition shrink-0 shadow-sm font-rubik font-medium text-[15px]"
@@ -116,7 +147,7 @@ export function MyServicesPage() {
             <div className="box-border flex flex-row justify-between items-center pl-4 pr-1.5 h-[48px] bg-white border border-[#EFEFEF]/86 rounded-[12px] w-full sm:max-w-[420px] shadow-xs">
               <input
                 type="text"
-                placeholder="Search for care requests"
+                placeholder={isSeeker ? 'Search for care services' : 'Search for care requests'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="font-rubik font-light text-[14px] text-[#1A2E35] placeholder-[#1A2E35]/60 bg-transparent border-none outline-none flex-1 pr-2"
@@ -138,6 +169,7 @@ export function MyServicesPage() {
           <MyServicesSidebar
             currentTab={currentTab}
             onTabChange={handleTabChange}
+            role={role}
           />
 
           {/* Vertical Separator Line */}
@@ -145,6 +177,12 @@ export function MyServicesPage() {
 
           {/* Right Main Content Area */}
           <div className="flex-1 w-full bg-transparent flex flex-col gap-4">
+            {/* Seeker Explore Tab with 6 Category Cards */}
+            {currentTab === 'explore' && (
+              <SeekerExploreTab searchQuery={searchQuery} />
+            )}
+
+            {/* Giver Services Tab */}
             {currentTab === 'services' && (
               <ServicesTab
                 subTab={servicesSubTab}

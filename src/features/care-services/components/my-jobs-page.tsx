@@ -10,6 +10,8 @@ import {
   Eye,
   History,
   Check,
+  Calendar as CalendarIcon,
+  X,
 } from 'lucide-react';
 import {
   Dialog,
@@ -17,116 +19,22 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import { ApplicantsTab } from './applicants-tab';
 import { ViewedTab } from './viewed-tab';
 import { ActiveTab } from './active-tab';
 import { HistoryTab } from './history-tab';
-import { CancelJobModal, MarkAsDoneModal } from './job-action-modals';
-
-interface ServiceItem {
-  id: string;
-  caregiverId: string;
-  caregiverName: string;
-  caregiverAvatar: string;
-  caregiverRating: number;
-  caregiverReviews: number;
-  caregiverServices: number;
-  location: string;
-  distance: string;
-  featured: boolean;
-  serviceTitle: string;
-  serviceDescription: string;
-  serviceImage: string;
-  price: string;
-  category: string;
-}
-
-const MOCK_SERVICES: ServiceItem[] = [
-  {
-    id: 'svc-1',
-    caregiverId: 'john-doe',
-    caregiverName: 'John Doe',
-    caregiverAvatar: '/images/avatar.webp',
-    caregiverRating: 5.0,
-    caregiverReviews: 48,
-    caregiverServices: 98,
-    location: 'San Juan, Texas(TX)',
-    distance: '500 miles',
-    featured: true,
-    serviceTitle: 'Get Cleaning Services',
-    serviceDescription: "Meet Jake, a busy professional who just moved into a new apartment. With his hectic schedule, he finds it challenging to keep his place tidy. That's why he's looking for a reliable house cleaning service to help him...",
-    serviceImage: '/images/home/search.webp',
-    price: '$10',
-    category: 'Disability Support',
-  },
-  {
-    id: 'svc-2',
-    caregiverId: 'nandi-bolard',
-    caregiverName: 'Nandi Bolard',
-    caregiverAvatar: '/images/avatar.webp',
-    caregiverRating: 5.0,
-    caregiverReviews: 48,
-    caregiverServices: 98,
-    location: 'San Juan, Texas(TX)',
-    distance: '500 miles',
-    featured: true,
-    serviceTitle: 'Get Cleaning Services',
-    serviceDescription: "Meet Jake, a busy professional who just moved into a new apartment. With his hectic schedule, he finds it challenging to keep his place tidy. That's why he's looking for a reliable house cleaning service to help him...",
-    serviceImage: '/images/home/search.webp',
-    price: '$10',
-    category: 'Nursing Care',
-  },
-  {
-    id: 'svc-3',
-    caregiverId: 'mark-taylor',
-    caregiverName: 'Mark Taylor',
-    caregiverAvatar: '/images/avatar.webp',
-    caregiverRating: 5.0,
-    caregiverReviews: 48,
-    caregiverServices: 98,
-    location: 'San Juan, Texas(TX)',
-    distance: '500 miles',
-    featured: false,
-    serviceTitle: 'Get Cleaning Services',
-    serviceDescription: "Meet Jake, a busy professional who just moved into a new apartment. With his hectic schedule, he finds it challenging to keep his place tidy. That's why he's looking for a reliable house cleaning service to help him...",
-    serviceImage: '/images/home/search.webp',
-    price: '$10',
-    category: 'Elderly Care',
-  },
-  {
-    id: 'svc-4',
-    caregiverId: 'james-brown',
-    caregiverName: 'James Brown',
-    caregiverAvatar: '/images/giver.webp',
-    caregiverRating: 5.0,
-    caregiverReviews: 48,
-    caregiverServices: 98,
-    location: 'San Juan, Texas(TX)',
-    distance: '500 miles',
-    featured: false,
-    serviceTitle: 'Get Cleaning Services',
-    serviceDescription: "Meet Jake, a busy professional who just moved into a new apartment. With his hectic schedule, he finds it challenging to keep his place tidy. That's why he's looking for a reliable house cleaning service to help him...",
-    serviceImage: '/images/home/search.webp',
-    price: '$10',
-    category: 'Child Care',
-  },
-];
 
 export default function MyJobsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'active' | 'requests' | 'explore' | 'history'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'applicants' | 'viewed' | 'history'>('active');
 
-  // Requests Section interactive state
-  const [requestStatus, setRequestStatus] = useState<'Pending' | 'Completed' | 'Cancelled'>('Pending');
+  // Cancel Modal Flow (3-Step Flow)
   const [cancelModalStep, setCancelModalStep] = useState<number>(0);
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<string>('');
 
   // Active Tab Sub-States
   const [activeSubTab, setActiveSubTab] = useState<'ongoing' | 'upcoming'>('ongoing');
-  const [ongoingStatus, setOngoingStatus] = useState<'Active' | 'Completed' | 'Cancelled'>('Active');
-  const [cancelTarget, setCancelTarget] = useState<'requests' | 'ongoing'>('requests');
-  const [isMarkDoneOpen, setIsMarkDoneOpen] = useState(false);
-  const [markDoneTargetId, setMarkDoneTargetId] = useState('john-doe');
   const [historySubTab, setHistorySubTab] = useState<'completed' | 'cancelled'>('completed');
 
   return (
@@ -140,7 +48,7 @@ export default function MyJobsPage() {
         {/* Header Controls Block */}
         <div className="w-full max-w-[1280px] flex flex-col gap-[20px] shrink-0 bg-transparent">
 
-          {/* Row 1: Back arrow + Breadcrumbs (Left) and Post A Care Request Button (Right) */}
+          {/* Row 1: Back arrow + Breadcrumbs (Left) and Action Buttons (Right) */}
           <div className="flex flex-row justify-between items-center w-full">
             <div className="flex items-center gap-[16px] h-[48px]">
               <button
@@ -152,13 +60,15 @@ export default function MyJobsPage() {
               <div className="flex items-center gap-[10px] font-rubik text-[16px] text-[#3D3D3D]">
                 <Link href="/" className="hover:text-[#F36922] transition">Home</Link>
                 <ChevronRight className="w-5 h-5 text-[#3D3D3D]" />
-                <span className="font-normal text-[#3D3D3D]">My Jobs</span>
+                <span className="font-normal text-[#3D3D3D]">
+                  {activeTab === 'applicants' ? 'Applicants' : activeTab === 'active' && activeSubTab === 'upcoming' ? 'Active Job' : 'My Jobs'}
+                </span>
               </div>
             </div>
 
-            {/* Post A Care Request Button */}
+            {/* Right Button: Post A Care Request */}
             <Link
-              href="/create-job"
+              href="/care-request"
               className="h-[48px] px-[20px] bg-[#0A0A6E] hover:bg-[#080856] text-white rounded-[8px] flex items-center justify-center font-rubik font-medium text-[14px] leading-[24px] capitalize cursor-pointer transition border-none shadow-sm"
             >
               Post A Care Request
@@ -175,10 +85,11 @@ export default function MyJobsPage() {
             {/* Active Button */}
             <button
               onClick={() => setActiveTab('active')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'active'
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
+                activeTab === 'active'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-                }`}
+              }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <Check className="w-5 h-5 stroke-[3]" />
@@ -190,11 +101,12 @@ export default function MyJobsPage() {
 
             {/* Applicants Button */}
             <button
-              onClick={() => setActiveTab('requests')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'requests'
+              onClick={() => setActiveTab('applicants')}
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
+                activeTab === 'applicants'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-                }`}
+              }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <Users className="w-5 h-5" />
@@ -206,11 +118,12 @@ export default function MyJobsPage() {
 
             {/* Viewed Button */}
             <button
-              onClick={() => setActiveTab('explore')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'explore'
+              onClick={() => setActiveTab('viewed')}
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
+                activeTab === 'viewed'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-                }`}
+              }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <Eye className="w-5 h-5" />
@@ -223,10 +136,11 @@ export default function MyJobsPage() {
             {/* History Button */}
             <button
               onClick={() => setActiveTab('history')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'history'
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
+                activeTab === 'history'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-                }`}
+              }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <History className="w-5 h-5" />
@@ -246,23 +160,15 @@ export default function MyJobsPage() {
               <ActiveTab
                 activeSubTab={activeSubTab}
                 onSubTabChange={setActiveSubTab}
-                ongoingStatus={ongoingStatus}
-                onCancelOngoingClick={() => {
-                  setCancelTarget('ongoing');
-                  setCancelModalStep(1);
-                }}
-                onMarkDoneClick={() => {
-                  setMarkDoneTargetId('john-doe');
-                  setIsMarkDoneOpen(true);
-                }}
+                onCancelOngoingClick={() => setCancelModalStep(1)}
               />
             )}
 
-            {activeTab === 'requests' && (
+            {activeTab === 'applicants' && (
               <ApplicantsTab />
             )}
 
-            {activeTab === 'explore' && (
+            {activeTab === 'viewed' && (
               <ViewedTab />
             )}
 
@@ -278,29 +184,109 @@ export default function MyJobsPage() {
 
       </div>
 
-      {/* Cancel Request / Ongoing Modal Flow */}
-      <CancelJobModal
-        open={isCancelModalOpen || cancelModalStep > 0}
-        onOpenChange={(val) => {
-          setIsCancelModalOpen(val);
-          if (!val) setCancelModalStep(0);
-        }}
-        onSuccessClose={() => {
-          if (cancelTarget === 'requests') setRequestStatus('Cancelled');
-          else setOngoingStatus('Cancelled');
-        }}
-      />
+      {/* Cancel Service Modal 3-Step Flow (Pixel-Perfect Matching Screenshots) */}
+      <Dialog open={cancelModalStep > 0} onOpenChange={(open) => !open && setCancelModalStep(0)}>
+        {/* Step 1: Cancel This Job? */}
+        {cancelModalStep === 1 && (
+          <DialogContent className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
+            {/* Red Door Exit Icon */}
+            <div className="w-[56px] h-[50px] relative flex items-center justify-center mb-1">
+              <svg width="56" height="50" viewBox="0 0 56 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="5" width="26" height="40" rx="9" fill="#D32F2F" />
+                <path d="M18 25H48M48 25L39 16M48 25L39 34" stroke="#D32F2F" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M18 25H30" stroke="white" strokeWidth="4" strokeLinecap="round" />
+              </svg>
+            </div>
 
-      {/* Mark Job As Done Modal */}
-      <MarkAsDoneModal
-        open={isMarkDoneOpen}
-        onOpenChange={setIsMarkDoneOpen}
-        onConfirm={() => {
-          setOngoingStatus('Completed');
-          setIsMarkDoneOpen(false);
-          router.push(`/review/${markDoneTargetId}`);
-        }}
-      />
+            <DialogTitle className="font-rubik font-bold text-[24px] sm:text-[26px] text-[#121111] text-center mt-1">
+              Cancel This Job?
+            </DialogTitle>
+            <DialogDescription className="font-rubik font-normal text-[15px] sm:text-[16px] text-[#565656] text-center max-w-[280px] mx-auto mt-2 leading-[22px]">
+              Are you sure you want to cancel Job?
+            </DialogDescription>
+
+            <div className="flex items-center gap-3 w-full mt-6">
+              <button
+                type="button"
+                onClick={() => setCancelModalStep(2)}
+                className="flex-1 h-[52px] bg-[#FFF0E8] hover:bg-[#FFE5D8] text-[#F36922] font-rubik font-semibold text-[16px] rounded-[16px] transition cursor-pointer border-none flex items-center justify-center"
+              >
+                Cancel Job
+              </button>
+              <button
+                type="button"
+                onClick={() => setCancelModalStep(0)}
+                className="flex-1 h-[52px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-semibold text-[16px] rounded-[16px] transition cursor-pointer border-none shadow-sm flex items-center justify-center"
+              >
+                Keep Job
+              </button>
+            </div>
+          </DialogContent>
+        )}
+
+        {/* Step 2: Cancellation Reason Textarea */}
+        {cancelModalStep === 2 && (
+          <DialogContent className="sm:max-w-[440px] bg-[#FEF0E9] rounded-[28px] p-6 sm:p-7 border-none shadow-2xl flex flex-col text-left">
+            <div className="flex items-center justify-between w-full pb-3">
+              <DialogTitle className="font-rubik font-bold text-[22px] text-[#121111]">
+                Cancellation Reason
+              </DialogTitle>
+              <button
+                type="button"
+                onClick={() => setCancelModalStep(0)}
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-black/5 transition cursor-pointer border-none text-[#121111]"
+              >
+                <X className="w-5 h-5 stroke-[2.5]" />
+              </button>
+            </div>
+
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Reason"
+              className="w-full h-[150px] bg-white rounded-[18px] p-4 font-rubik text-[15px] text-[#121111] placeholder:text-[#A1A1AA] border border-neutral-100 outline-none resize-none focus:ring-1 focus:ring-[#F36922] shadow-2xs"
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                setCancelModalStep(3);
+                toast.error('Booking has been cancelled.');
+              }}
+              className="w-full h-[52px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-semibold text-[16px] rounded-[16px] shadow-sm transition cursor-pointer border-none flex items-center justify-center mt-5"
+            >
+              Submit
+            </button>
+          </DialogContent>
+        )}
+
+        {/* Step 3: Job Cancel Confirmation */}
+        {cancelModalStep === 3 && (
+          <DialogContent className="sm:max-w-[400px] bg-white rounded-[28px] p-8 border-none shadow-2xl flex flex-col items-center text-center">
+            {/* Orange Square with White Checkmark */}
+            <div className="w-[56px] h-[56px] rounded-[16px] bg-[#F36922] flex items-center justify-center mb-2 shadow-xs">
+              <Check className="w-8 h-8 text-white stroke-[3.5]" />
+            </div>
+
+            <DialogTitle className="font-rubik font-bold text-[24px] sm:text-[26px] text-[#121111] text-center mt-1">
+              Job Cancel
+            </DialogTitle>
+            <DialogDescription className="font-rubik font-normal text-[15px] sm:text-[16px] text-[#565656] text-center max-w-[340px] mx-auto mt-2 leading-[24px]">
+              Job has been cancelled... You have 2 cancel jobs remaining. After that no request or booking for almost 24 hrs.
+            </DialogDescription>
+
+            <div className="w-full mt-6">
+              <button
+                type="button"
+                onClick={() => setCancelModalStep(0)}
+                className="w-full h-[48px] bg-[#F8F9FF] hover:bg-neutral-100 text-[#121111] font-rubik font-medium text-[15px] rounded-[14px] transition cursor-pointer border border-[#EFEFEF] flex items-center justify-center"
+              >
+                Close
+              </button>
+            </div>
+          </DialogContent>
+        )}
+      </Dialog>
     </div>
   );
 }

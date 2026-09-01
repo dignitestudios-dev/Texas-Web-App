@@ -1,4 +1,4 @@
-export type SidebarTab = 'services' | 'requests' | 'active' | 'history';
+export type SidebarTab = 'explore' | 'services' | 'requests' | 'active' | 'history';
 
 export type ServicesSubTab = 'active' | 'inactive';
 export type ActiveJobsSubTab = 'upcoming' | 'ongoing';

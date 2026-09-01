@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Define route matching
-const protectedRoutes = ['/create-job'];
+const protectedRoutes = ['/create-job', '/care-request'];
 const authRoutes = ['/login', '/register', '/welcome'];
 const giverOnlyRoutes = ['/freelance-jobs', '/find-jobs'];
 

@@ -174,16 +174,7 @@ const ALL_CAREGIVERS: CaregiverCardItem[] = [
   },
 ];
 
-interface ExploreTabProps {
-  filteredServices?: any[];
-  searchQuery?: string;
-  onSelectCategory?: (category: string) => void;
-}
-
-export function ExploreTab({
-  searchQuery = '',
-  onSelectCategory,
-}: ExploreTabProps) {
+export function SeekerExploreTab({ searchQuery = '' }: { searchQuery?: string }) {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(null);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
@@ -205,13 +196,6 @@ export function ExploreTab({
         c.name.toLowerCase().includes(q) ||
         c.location.toLowerCase().includes(q)
     );
-  };
-
-  const handleCategoryClick = (cat: CategoryItem) => {
-    setSelectedCategory(cat);
-    if (onSelectCategory) {
-      onSelectCategory(cat.id);
-    }
   };
 
   // Card renderer component
@@ -239,8 +223,9 @@ export function ExploreTab({
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/25 backdrop-blur-xs flex items-center justify-center text-white hover:text-[#F36922] transition cursor-pointer border-none"
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${isFav ? 'fill-[#F36922] text-[#F36922]' : 'text-white'
-                }`}
+              className={`w-4 h-4 transition-colors ${
+                isFav ? 'fill-[#F36922] text-[#F36922]' : 'text-white'
+              }`}
             />
           </button>
         </div>
@@ -297,7 +282,7 @@ export function ExploreTab({
         {/* View Service Button */}
         <button
           type="button"
-          onClick={() => router.push(`/leaderboard/${item.id}/service`)}
+          onClick={() => router.push(`/leaderboard/${item.id}`)}
           className="w-full h-[38px] bg-white hover:bg-neutral-50 border border-[#E4E4E7] text-[#121111] font-rubik font-medium text-[13.5px] rounded-full transition flex items-center justify-center cursor-pointer shadow-2xs mt-0.5"
         >
           View Service
@@ -322,8 +307,8 @@ export function ExploreTab({
             {filteredCategories.map((cat) => (
               <div
                 key={cat.id}
-                onClick={() => handleCategoryClick(cat)}
-                className="bg-white rounded-[12px] hover:shadow-lg hover:border-[#F36922]/50 hover:-translate-y-1 transition-all duration-200 p-6 sm:p-8 flex flex-col items-center justify-between text-center cursor-pointer group h-[280px] sm:h-[310px] relative overflow-hidden"
+                onClick={() => setSelectedCategory(cat)}
+                className="bg-white rounded-[24px] border border-[#EFEFEF] shadow-sm hover:shadow-lg hover:border-[#F36922]/50 hover:-translate-y-1 transition-all duration-200 p-6 sm:p-8 flex flex-col items-center justify-between text-center cursor-pointer group h-[280px] sm:h-[310px] relative overflow-hidden"
               >
                 {/* Image Area */}
                 <div className="w-full flex-1 flex items-center justify-center relative">
@@ -356,9 +341,21 @@ export function ExploreTab({
   return (
     <div className="w-full h-full overflow-y-auto pr-1 pb-10 scrollbar-thin select-none">
       <div className="flex flex-col gap-6 w-full max-w-[1280px] mx-auto">
-
+        
         {/* Back to Categories button + Category Title */}
-
+        <div className="flex items-center justify-between w-full">
+          <button
+            type="button"
+            onClick={() => setSelectedCategory(null)}
+            className="flex items-center gap-1.5 text-[14px] font-rubik font-medium text-[#0A0A6E] hover:text-[#F36922] transition cursor-pointer bg-white px-3.5 py-1.5 rounded-full border border-[#EFEFEF] shadow-2xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Categories</span>
+          </button>
+          <span className="font-rubik font-semibold text-[15px] text-[#F36922]">
+            Category: {selectedCategory.title}
+          </span>
+        </div>
 
         {/* Dynamic Category Information Banner */}
         <div className="flex items-start gap-2 text-[#121111] font-rubik font-medium text-[14px] sm:text-[15px] leading-[22px]">

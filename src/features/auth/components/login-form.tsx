@@ -52,20 +52,20 @@ export const LoginForm = () => {
 
   return (
     <div className="flex flex-col items-center w-full max-w-[440px] mx-auto select-none">
-      
+
       {/* Header (Matches Screenshot) */}
       <div className="flex flex-col items-center mb-6">
         <h1 className="font-rubik font-bold text-[28px] sm:text-[32px] leading-[38px] text-[#121111] text-center">
-          Welcome Back
+          Welcome
         </h1>
         <p className="font-rubik font-normal text-[14px] sm:text-[15px] leading-[22px] text-[#565656] text-center mt-1.5">
-          Sign in to access your account and continue where you left off.
+          Sign in or sign up with your phone number to continue.
         </p>
       </div>
 
       {/* Main Login Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full">
-        
+
         {/* Phone Input Row: Country Code + Phone Input */}
         <div className="flex flex-row items-center gap-2.5 w-full">
           {/* Country Code Pill */}
@@ -90,9 +90,8 @@ export const LoginForm = () => {
               value={phoneNumberValue}
               onChange={handlePhoneChange}
               maxLength={12}
-              className={`h-[52px] bg-white rounded-[12px] px-4 font-rubik text-[15px] text-[#121111] placeholder:text-[#8E8E93] border border-[#EFEFEF] shadow-2xs outline-none focus:border-[#F36922] transition-colors ${
-                errors.phoneNumber ? 'border-red-500' : ''
-              }`}
+              className={`h-[52px] bg-white rounded-[12px] px-4 font-rubik text-[15px] text-[#121111] placeholder:text-[#8E8E93] border border-[#EFEFEF] shadow-2xs outline-none focus:border-[#F36922] transition-colors ${errors.phoneNumber ? 'border-red-500' : ''
+                }`}
             />
           </div>
         </div>
