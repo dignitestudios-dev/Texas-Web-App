@@ -23,56 +23,76 @@ function TopProgressBarContent() {
 
   // Intercept link clicks to trigger progress bar start
   useEffect(() => {
+    let timers: NodeJS.Timeout[] = [];
+
+    const clearAllTimers = () => {
+      timers.forEach((t) => clearTimeout(t));
+      timers = [];
+    };
+
     const handleDocumentClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest('a');
-      if (!target) return;
+      // Defer check to next tick so event handler can call e.preventDefault()
+      setTimeout(() => {
+        if (e.defaultPrevented) {
+          clearAllTimers();
+          setIsVisible(false);
+          setProgress(0);
+          return;
+        }
 
-      const href = target.getAttribute('href');
-      if (!href) return;
+        const target = (e.target as HTMLElement).closest('a');
+        if (!target) return;
 
-      // Ignore external links, hash anchors, mailto, tel, target="_blank", or download links
-      if (
-        href.startsWith('http') ||
-        href.startsWith('//') ||
-        href.startsWith('#') ||
-        href.startsWith('mailto:') ||
-        href.startsWith('tel:') ||
-        target.target === '_blank' ||
-        target.hasAttribute('download')
-      ) {
-        return;
-      }
+        const href = target.getAttribute('href');
+        if (!href) return;
 
-      // If clicking the current path with identical query params, ignore
-      const currentUrl = window.location.pathname + window.location.search;
-      if (href === currentUrl) return;
+        // Ignore external links, hash anchors, mailto, tel, target="_blank", or download links
+        if (
+          href.startsWith('http') ||
+          href.startsWith('//') ||
+          href.startsWith('#') ||
+          href.startsWith('mailto:') ||
+          href.startsWith('tel:') ||
+          target.target === '_blank' ||
+          target.hasAttribute('download')
+        ) {
+          return;
+        }
 
-      // Start progress animation
-      setIsVisible(true);
-      setProgress(25);
+        // If clicking the current path with identical query params, ignore
+        const currentUrl = window.location.pathname + window.location.search;
+        if (href === currentUrl) return;
 
-      const t1 = setTimeout(() => setProgress(50), 100);
-      const t2 = setTimeout(() => setProgress(75), 300);
-      const t3 = setTimeout(() => setProgress(90), 600);
+        clearAllTimers();
+        setIsVisible(true);
+        setProgress(25);
 
-      // Cleanup if user cancels navigation
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-        clearTimeout(t3);
-      };
+        timers.push(setTimeout(() => setProgress(50), 100));
+        timers.push(setTimeout(() => setProgress(75), 300));
+        timers.push(setTimeout(() => setProgress(90), 600));
+
+        // Auto-cancel if stuck after 6 seconds
+        timers.push(
+          setTimeout(() => {
+            setIsVisible(false);
+            setProgress(0);
+          }, 6000)
+        );
+      }, 0);
     };
 
     const handlePopState = () => {
+      clearAllTimers();
       setIsVisible(true);
       setProgress(40);
     };
 
-    document.addEventListener('click', handleDocumentClick, { capture: true });
+    document.addEventListener('click', handleDocumentClick);
     window.addEventListener('popstate', handlePopState);
 
     return () => {
-      document.removeEventListener('click', handleDocumentClick, { capture: true });
+      clearAllTimers();
+      document.removeEventListener('click', handleDocumentClick);
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);

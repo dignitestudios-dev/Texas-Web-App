@@ -3,7 +3,13 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Info, Star, Clock, Calendar, MapPin, ArrowRight } from 'lucide-react';
+import { Info, Star, Clock, Calendar, MapPin, ArrowRight, AlertTriangle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { ActiveJobItem, ActiveJobsSubTab } from '../types/my-services.types';
 
@@ -78,10 +84,15 @@ export function ActiveTab({
 }: ActiveTabProps) {
   const router = useRouter();
   const [activeJobs, setActiveJobs] = useState<ActiveJobItem[]>(MOCK_ACTIVE_JOBS);
+  const [cancelJobTarget, setCancelJobTarget] = useState<ActiveJobItem | null>(null);
 
-  const handleCancelJob = (id: string) => {
-    setActiveJobs((prev) => prev.filter((j) => j.id !== id));
-    toast.info('Job booking cancelled.');
+  const handleConfirmCancel = () => {
+    if (!cancelJobTarget) return;
+    const targetId = cancelJobTarget.id;
+    const targetTitle = cancelJobTarget.title || cancelJobTarget.category;
+    setActiveJobs((prev) => prev.filter((j) => j.id !== targetId));
+    toast.error(`Upcoming job "${targetTitle}" has been cancelled.`);
+    setCancelJobTarget(null);
   };
 
   const filteredActiveJobs = activeJobs
@@ -92,7 +103,7 @@ export function ActiveTab({
     );
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4 w-full select-none">
       {/* Info Banner */}
       <div className="flex items-center gap-2 font-rubik font-semibold text-[15px] leading-[20px] text-[#121111]">
         <Info className="w-4 h-4 text-[#121111] shrink-0" />
@@ -231,7 +242,7 @@ export function ActiveTab({
                   {job.type === 'upcoming' && (
                     <button
                       type="button"
-                      onClick={() => handleCancelJob(job.id)}
+                      onClick={() => setCancelJobTarget(job)}
                       className="h-[38px] px-5 bg-[#F4F4F5] hover:bg-neutral-200 text-[#121111] font-rubik font-medium text-[13px] rounded-full transition cursor-pointer border-none shadow-2xs"
                     >
                       Cancel Job
@@ -257,6 +268,59 @@ export function ActiveTab({
           </div>
         )}
       </div>
+
+      {/* Cancel Job Confirmation Dialog */}
+      <Dialog
+        open={!!cancelJobTarget}
+        onOpenChange={(open) => !open && setCancelJobTarget(null)}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className="w-[420px] max-w-[92vw] bg-white rounded-[24px] p-6 sm:p-7 flex flex-col items-center text-center shadow-xl border border-[#EFEFEF] outline-none select-none"
+        >
+          {/* Warning Icon Badge */}
+          <div className="w-[52px] h-[52px] rounded-full bg-[#FEE2E2] text-[#C81E1E] flex items-center justify-center mb-2">
+            <AlertTriangle className="w-7 h-7 stroke-[2.5]" />
+          </div>
+
+          {/* Title */}
+          <DialogTitle className="font-rubik font-bold text-[22px] leading-[28px] text-[#121111]">
+            Cancel Upcoming Job?
+          </DialogTitle>
+
+          {/* Description */}
+          <DialogDescription className="font-rubik font-normal text-[14px] leading-[21px] text-[#565656] max-w-[330px] mt-2 mb-6">
+            Are you sure you want to cancel the upcoming booking for &ldquo;
+            <span className="font-medium text-[#121111]">
+              {cancelJobTarget?.title || cancelJobTarget?.category}
+            </span>
+            &rdquo; with{' '}
+            <span className="font-medium text-[#121111]">
+              {cancelJobTarget?.seekerName}
+            </span>
+            ? The care seeker will be notified.
+          </DialogDescription>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setCancelJobTarget(null)}
+              className="flex-1 h-[46px] bg-[#FEF0E9] hover:bg-[#FDE4D5] text-[#F36922] font-rubik font-semibold text-[15px] rounded-[12px] transition cursor-pointer border-none flex items-center justify-center"
+            >
+              Keep Job
+            </button>
+
+            <button
+              type="button"
+              onClick={handleConfirmCancel}
+              className="flex-1 h-[46px] bg-[#C81E1E] hover:bg-[#b01717] text-white font-rubik font-semibold text-[15px] rounded-[12px] transition cursor-pointer border-none shadow-xs flex items-center justify-center"
+            >
+              Confirm Cancel
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

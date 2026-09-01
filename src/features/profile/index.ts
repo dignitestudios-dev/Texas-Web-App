@@ -1,4 +1,10 @@
 export { default as ProfilePage } from './components/profile-page';
+export { GiverProfilePage } from './components/giver-profile-page';
+export { SeekerProfilePage } from './components/seeker-profile-page';
+export { GiverProfileTab } from './components/giver-profile/giver-profile-tab';
+export { GiverDetailsTab } from './components/giver-profile/giver-details-tab';
+export { GiverDocumentsTab } from './components/giver-profile/giver-documents-tab';
+export { GiverAvailabilityTab } from './components/giver-profile/giver-availability-tab';
 export { default as AccountTab } from './components/account-tab';
 export { default as BlockedUsersTab } from './components/blocked-users-tab';
 export { default as NotificationTab } from './components/notification-tab';

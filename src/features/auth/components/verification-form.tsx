@@ -1,17 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { toast } from 'sonner';
 
 const verificationSchema = z.object({
-  otp: z.string().length(5, "Please enter all 5 digits"),
+  otp: z.string().length(5, 'Please enter all 5 digits'),
 });
 
 type VerificationFormValues = z.infer<typeof verificationSchema>;
@@ -19,102 +16,150 @@ type VerificationFormValues = z.infer<typeof verificationSchema>;
 export const VerificationForm = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const phone = searchParams.get('phone');
+  const phone = searchParams ? searchParams.get('phone') : null;
   const [otp, setOtp] = useState(['', '', '', '', '']);
 
-  const { handleSubmit, setValue, formState: { errors } } = useForm<VerificationFormValues>({
+  const {
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<VerificationFormValues>({
     resolver: zodResolver(verificationSchema),
-    defaultValues: { otp: '' }
+    defaultValues: { otp: '' },
   });
 
   const handleChange = (index: number, value: string) => {
-    if (value.length > 1) value = value.slice(-1);
+    // Only accept numeric digits
+    const cleanDigit = value.replace(/[^\d]/g, '');
+    if (!cleanDigit && value !== '') return;
+
+    const char = cleanDigit.slice(-1);
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = char;
     setOtp(newOtp);
     setValue('otp', newOtp.join(''), { shouldValidate: true });
-    // Optionally focus next input
-    if (value && index < 4) {
+
+    // Focus next input if a digit was entered
+    if (char && index < 4) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
     }
   };
 
-  const onSubmit = (data: VerificationFormValues) => {
-    // Handle verification submission here
-    console.log("Verified OTP:", data.otp);
-    router.replace('/success');
-  };
-
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`);
-      prevInput?.focus();
+    if (e.key === 'Backspace') {
+      if (!otp[index] && index > 0) {
+        const prevInput = document.getElementById(`otp-${index - 1}`);
+        prevInput?.focus();
+      }
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData('text').replace(/[^\d]/g, '').slice(0, 5);
+    if (!pasteData) return;
+
+    const newOtp = [...otp];
+    for (let i = 0; i < 5; i++) {
+      newOtp[i] = pasteData[i] || '';
+    }
+    setOtp(newOtp);
+    setValue('otp', newOtp.join(''), { shouldValidate: true });
+
+    // Focus the appropriate input
+    const focusIndex = Math.min(pasteData.length, 4);
+    const targetInput = document.getElementById(`otp-${focusIndex}`);
+    targetInput?.focus();
+  };
+
+  const onSubmit = (data: VerificationFormValues) => {
+    toast.success('Verification successful!');
+    router.replace('/success');
+  };
+
+  const handleResend = () => {
+    toast.success('A new OTP has been sent to your phone.');
+  };
+
   return (
-    <div className="flex flex-col items-center max-w-[445px] w-full mx-auto">
-      {/* Back Button */}
-      <div className="mb-10 self-start w-full">
-        <Link href="/login" className="flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-sm hover:bg-gray-50 transition-colors border border-gray-100">
-          <ArrowLeft className="w-5 h-5 text-[#181818]" />
-        </Link>
+    <div className="flex flex-col items-center max-w-[440px] w-full mx-auto select-none">
+      
+      {/* Header */}
+      <div className="flex flex-col items-center text-center mb-8">
+        <h1 className="font-rubik font-bold text-[28px] sm:text-[32px] leading-[38px] text-[#121111]">
+          Verification
+        </h1>
+        <p className="font-rubik font-normal text-[14px] sm:text-[15px] leading-[22px] text-[#565656] mt-1.5">
+          Enter the OTP sent to {phone ? `*** *** ${phone.replace(/[^\d]/g, '').slice(-4)}` : 'your phone number'}
+        </p>
+
+        {/* Change Number Option */}
+        <button
+          type="button"
+          onClick={() => router.push('/login')}
+          className="font-rubik font-medium text-[14px] text-[#F36922] hover:underline cursor-pointer border-none bg-transparent mt-1"
+        >
+          Change Number
+        </button>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center w-full mt-4">
-        {/* Header */}
-        <div className="flex flex-col items-center space-y-3 mb-12">
-          <h1 className="font-rubik font-medium text-[26px] leading-[31px] tracking-[-0.408px] text-[#121111]">
-            Verification
-          </h1>
-          <p className="font-poppins font-normal text-[14px] leading-[1.2] text-center text-[#565656]">
-            Enter the OTP sent to *** *** {phone ? phone.slice(-3) : '***'}
-          </p>
-        </div>
-
-        {/* OTP Inputs */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="flex flex-row items-center justify-center gap-8">
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center w-full">
+        
+        {/* 5-Digit OTP Boxes */}
+        <div className="flex flex-col items-center mb-6 w-full">
+          <div className="flex flex-row items-center justify-center gap-3 sm:gap-4 w-full">
             {otp.map((digit, index) => (
-              <Input
+              <input
                 key={index}
                 id={`otp-${index}`}
                 type="text"
                 inputMode="numeric"
+                pattern="[0-9]*"
                 maxLength={1}
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`w-12 h-[52px] bg-white rounded-xl text-center font-poppins font-semibold text-[16px] text-[#0A0A6E] outline-none focus-visible:ring-1 focus-visible:ring-[#0A0A6E] focus-visible:border-[#0A0A6E] focus-visible:ring-offset-0 border-none ${errors.otp ? 'ring-1 ring-red-500' : ''}`}
+                onPaste={handlePaste}
+                className={`w-[52px] h-[56px] sm:w-[58px] sm:h-[60px] bg-white rounded-[14px] text-center font-rubik font-semibold text-[20px] sm:text-[22px] text-[#0A0A6E] border border-[#EFEFEF] shadow-2xs outline-none focus:border-[#F36922] focus:ring-1 focus:ring-[#F36922] transition-colors ${
+                  errors.otp ? 'border-red-500' : ''
+                }`}
               />
             ))}
           </div>
+
           {errors.otp && (
-            <p className="text-red-500 text-sm font-poppins mt-3">{errors.otp.message}</p>
+            <span className="text-red-500 text-[13px] font-rubik mt-2">
+              {errors.otp.message}
+            </span>
           )}
         </div>
 
-        {/* Resend Link */}
-        <div className="mb-8">
-          <p className="font-poppins font-medium text-[14px] leading-[1.2] text-center text-[#181818]">
+        {/* Resend Code Section */}
+        <div className="mb-6">
+          <p className="font-rubik font-normal text-[14px] text-[#565656] text-center">
             Didn't receive code?{' '}
-            <button type="button" className="font-bold hover:underline">
+            <button
+              type="button"
+              onClick={handleResend}
+              className="font-semibold text-[#121111] hover:underline cursor-pointer border-none bg-transparent"
+            >
               Resend Now
             </button>
           </p>
         </div>
 
         {/* Continue Button */}
-        <Button 
+        <button
           type="submit"
-          className="flex flex-row justify-center items-center py-[14px] px-[16px] gap-[6px] w-full h-[48px] bg-[#F36922] rounded-xl hover:bg-[#E55A13] transition-colors text-white shadow-sm border-none"
+          className="w-full h-[52px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[16px] rounded-[12px] shadow-sm transition cursor-pointer border-none flex items-center justify-center"
         >
-          <span className="font-rubik font-medium text-[15px] leading-[1.35] text-center capitalize">
-            Continue
-          </span>
-        </Button>
+          Continue
+        </button>
+
       </form>
+
     </div>
   );
 };

@@ -31,8 +31,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
               className="object-cover"
               priority
             />
-            {/* Logo Overlay */}
-            <div className="absolute left-[213px] top-[37px]">
+            {/* Logo Overlay - Centered horizontally at top */}
+            <div className="absolute top-[37px] left-1/2 -translate-x-1/2">
               <Image
                 src="/images/logo2.webp"
                 alt="Texas Caregiver Alliance Logo"

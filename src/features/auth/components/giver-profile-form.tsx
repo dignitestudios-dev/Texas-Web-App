@@ -14,6 +14,9 @@ import {
   Clock,
   Check,
   FileText,
+  ChevronDown,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 import { saveToken } from '@/lib/cookies';
 import {
@@ -23,6 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 // Validation Schemas
 const educationSchema = z.object({
@@ -64,8 +72,8 @@ const giverProfileSchema = z.object({
   bio: z.string().min(1, 'Bio is required').max(200, 'Max 200 characters'),
 
   experience: z.string().min(1, 'Years of experience is required'),
-  languages: z.string().min(1, 'Please select languages'),
-  educations: z.array(educationSchema).min(1, 'At least 1 education required').max(3, 'Max 3 educations'),
+  languages: z.array(z.string()).min(1, 'Please select at least one language'),
+  educations: z.array(educationSchema).min(1, 'At least 1 education required'),
   certifications: z.array(certificationSchema).min(1, 'At least 1 certification required').max(3, 'Max 3 certifications'),
 
   availability: z.record(z.string(), dayAvailabilitySchema),
@@ -74,6 +82,21 @@ const giverProfileSchema = z.object({
 type GiverProfileFormValues = z.infer<typeof giverProfileSchema>;
 
 const DAYS_LIST = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const AVAILABLE_LANGUAGES = [
+  'English',
+  'Spanish',
+  'French',
+  'Arabic',
+  'German',
+  'Mandarin',
+  'Hindi',
+  'Portuguese',
+  'Russian',
+  'Italian',
+  'Vietnamese',
+  'Tagalog',
+];
 
 export const GiverProfileForm = () => {
   const router = useRouter();
@@ -109,7 +132,7 @@ export const GiverProfileForm = () => {
       city: '',
       bio: '',
       experience: '',
-      languages: '',
+      languages: ['English'],
       educations: [
         { id: '1', level: '', institute: '', from: '', to: '' },
         { id: '2', level: '', institute: '', from: '', to: '' },
@@ -122,16 +145,16 @@ export const GiverProfileForm = () => {
         Monday: {
           enabled: true,
           slots: [
-            { from: '09:00 AM', to: '01:00 PM' },
-            { from: '02:00 PM', to: '06:00 PM' },
+            { from: '09:00', to: '13:00' },
+            { from: '14:00', to: '18:00' },
           ],
         },
-        Tuesday: { enabled: false, slots: [{ from: '09:00 AM', to: '05:00 PM' }] },
-        Wednesday: { enabled: false, slots: [{ from: '09:00 AM', to: '05:00 PM' }] },
-        Thursday: { enabled: false, slots: [{ from: '09:00 AM', to: '05:00 PM' }] },
-        Friday: { enabled: false, slots: [{ from: '09:00 AM', to: '05:00 PM' }] },
-        Saturday: { enabled: false, slots: [{ from: '10:00 AM', to: '04:00 PM' }] },
-        Sunday: { enabled: false, slots: [{ from: '10:00 AM', to: '04:00 PM' }] },
+        Tuesday: { enabled: false, slots: [{ from: '09:00', to: '17:00' }] },
+        Wednesday: { enabled: false, slots: [{ from: '09:00', to: '17:00' }] },
+        Thursday: { enabled: false, slots: [{ from: '09:00', to: '17:00' }] },
+        Friday: { enabled: false, slots: [{ from: '09:00', to: '17:00' }] },
+        Saturday: { enabled: false, slots: [{ from: '10:00', to: '16:00' }] },
+        Sunday: { enabled: false, slots: [{ from: '10:00', to: '16:00' }] },
       },
     },
     mode: 'onTouched',
@@ -209,7 +232,7 @@ export const GiverProfileForm = () => {
       `availability.${day}`,
       {
         enabled: !current.enabled,
-        slots: current.slots.length > 0 ? current.slots : [{ from: '09:00 AM', to: '05:00 PM' }],
+        slots: current.slots.length > 0 ? current.slots : [{ from: '09:00', to: '17:00' }],
       },
       { shouldValidate: true }
     );
@@ -219,7 +242,7 @@ export const GiverProfileForm = () => {
     const currentSlots = availabilityValue[day].slots;
     setValue(
       `availability.${day}.slots`,
-      [...currentSlots, { from: '09:00 AM', to: '05:00 PM' }],
+      [...currentSlots, { from: '09:00', to: '17:00' }],
       { shouldValidate: true }
     );
   };
@@ -577,29 +600,88 @@ export const GiverProfileForm = () => {
                 {errors.experience && <span className="text-red-500 text-xs mt-1">{errors.experience.message}</span>}
               </div>
 
-              {/* Languages (Shadcn Select) */}
+              {/* Languages (Multi-Select Popover) */}
               <div className="flex flex-col w-full">
                 <Controller
                   control={control}
                   name="languages"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger
-                        className={`w-full h-[48px]! bg-white rounded-[12px] px-4 font-rubik text-[14px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
-                          errors.languages ? 'border-red-500' : 'border-[#EFEFEF]'
-                        }`}
-                      >
-                        <SelectValue placeholder="Languages" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                        <SelectItem value="English">English</SelectItem>
-                        <SelectItem value="Spanish">Spanish</SelectItem>
-                        <SelectItem value="French">French</SelectItem>
-                        <SelectItem value="Arabic">Arabic</SelectItem>
-                        <SelectItem value="German">German</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
+                  render={({ field }) => {
+                    const selectedLangs: string[] = Array.isArray(field.value) ? field.value : [];
+
+                    const toggleLang = (lang: string) => {
+                      if (selectedLangs.includes(lang)) {
+                        field.onChange(selectedLangs.filter((l) => l !== lang));
+                      } else {
+                        field.onChange([...selectedLangs, lang]);
+                      }
+                    };
+
+                    return (
+                      <Popover>
+                        <PopoverTrigger
+                          type="button"
+                          className={`w-full min-h-[48px] bg-white rounded-[12px] px-3.5 py-2 font-rubik text-[14px] text-[#121111] border shadow-xs outline-none flex items-center justify-between gap-2 flex-wrap cursor-pointer text-left ${
+                            errors.languages ? 'border-red-500' : 'border-[#EFEFEF]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 flex-wrap flex-1">
+                            {selectedLangs.length > 0 ? (
+                              selectedLangs.map((lang) => (
+                                <span
+                                  key={lang}
+                                  className="bg-[#FEF0E9] text-[#F36922] font-rubik font-medium text-[12px] px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0"
+                                >
+                                  {lang}
+                                  <span
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleLang(lang);
+                                    }}
+                                    className="hover:opacity-75 cursor-pointer ml-0.5 font-bold"
+                                  >
+                                    &times;
+                                  </span>
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-[#727272]">Select Languages</span>
+                            )}
+                          </div>
+                          <ChevronDown className="w-4 h-4 text-[#727272] shrink-0" />
+                        </PopoverTrigger>
+
+                        <PopoverContent
+                          align="start"
+                          className="w-[280px] sm:w-[320px] bg-white rounded-[14px] border border-[#EFEFEF] shadow-xl p-2 max-h-[260px] overflow-y-auto"
+                        >
+                          <div className="flex flex-col gap-1">
+                            {AVAILABLE_LANGUAGES.map((lang) => {
+                              const isSelected = selectedLangs.includes(lang);
+                              return (
+                                <button
+                                  key={lang}
+                                  type="button"
+                                  onClick={() => toggleLang(lang)}
+                                  className={`w-full px-3 py-2 rounded-[8px] flex items-center justify-between text-[13px] font-rubik cursor-pointer transition border-none text-left ${
+                                    isSelected
+                                      ? 'bg-[#FEF0E9] text-[#F36922] font-medium'
+                                      : 'hover:bg-[#F8F9FF] text-[#121111]'
+                                  }`}
+                                >
+                                  <span>{lang}</span>
+                                  {isSelected ? (
+                                    <CheckSquare className="w-4 h-4 text-[#F36922] shrink-0" />
+                                  ) : (
+                                    <Square className="w-4 h-4 text-[#727272] shrink-0" />
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    );
+                  }}
                 />
                 {errors.languages && <span className="text-red-500 text-xs mt-1">{errors.languages.message}</span>}
               </div>
@@ -650,8 +732,8 @@ export const GiverProfileForm = () => {
                           <X className="w-5 h-5" />
                         </button>
 
-                        {/* Add button on last row (Max 3) */}
-                        {isLast && educationFields.length < 3 && (
+                        {/* Add button on last row */}
+                        {isLast && (
                           <button
                             type="button"
                             onClick={() =>
@@ -933,52 +1015,23 @@ export const GiverProfileForm = () => {
                           const isLastSlot = sIdx === dayData.slots.length - 1;
                           return (
                             <div key={sIdx} className="flex items-center gap-2.5 w-full">
-                              {/* From Input (Shadcn Select with Clock) */}
-                              <div className="flex-1">
-                                <Controller
-                                  control={control}
-                                  name={`availability.${day}.slots.${sIdx}.from`}
-                                  render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                      <SelectTrigger className="w-full h-[44px]! bg-white border border-[#EFEFEF] rounded-[12px] px-3.5 font-rubik text-[13px] text-[#121111] shadow-xs">
-                                        <div className="flex items-center gap-2">
-                                          <Clock className="w-4 h-4 text-[#F36922] shrink-0" />
-                                          <SelectValue placeholder="From" />
-                                        </div>
-                                      </SelectTrigger>
-                                      <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                        <SelectItem value="08:00 AM">08:00 AM</SelectItem>
-                                        <SelectItem value="09:00 AM">09:00 AM</SelectItem>
-                                        <SelectItem value="10:00 AM">10:00 AM</SelectItem>
-                                        <SelectItem value="01:00 PM">01:00 PM</SelectItem>
-                                        <SelectItem value="02:00 PM">02:00 PM</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  )}
+                              {/* From Time Input */}
+                              <div className="flex-1 relative flex items-center">
+                                <Clock className="w-4 h-4 text-[#F36922] absolute left-3.5 pointer-events-none shrink-0" />
+                                <input
+                                  type="time"
+                                  {...register(`availability.${day}.slots.${sIdx}.from`)}
+                                  className="w-full h-[44px] bg-white border border-[#EFEFEF] rounded-[12px] pl-10 pr-3 font-rubik text-[14px] text-[#121111] shadow-xs outline-none focus:border-[#F36922] transition cursor-pointer"
                                 />
                               </div>
 
-                              {/* To Input (Shadcn Select with Clock) */}
-                              <div className="flex-1">
-                                <Controller
-                                  control={control}
-                                  name={`availability.${day}.slots.${sIdx}.to`}
-                                  render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                      <SelectTrigger className="w-full h-[44px]! bg-white border border-[#EFEFEF] rounded-[12px] px-3.5 font-rubik text-[13px] text-[#121111] shadow-xs">
-                                        <div className="flex items-center gap-2">
-                                          <Clock className="w-4 h-4 text-[#F36922] shrink-0" />
-                                          <SelectValue placeholder="To" />
-                                        </div>
-                                      </SelectTrigger>
-                                      <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                        <SelectItem value="01:00 PM">01:00 PM</SelectItem>
-                                        <SelectItem value="05:00 PM">05:00 PM</SelectItem>
-                                        <SelectItem value="06:00 PM">06:00 PM</SelectItem>
-                                        <SelectItem value="08:00 PM">08:00 PM</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  )}
+                              {/* To Time Input */}
+                              <div className="flex-1 relative flex items-center">
+                                <Clock className="w-4 h-4 text-[#F36922] absolute left-3.5 pointer-events-none shrink-0" />
+                                <input
+                                  type="time"
+                                  {...register(`availability.${day}.slots.${sIdx}.to`)}
+                                  className="w-full h-[44px] bg-white border border-[#EFEFEF] rounded-[12px] pl-10 pr-3 font-rubik text-[14px] text-[#121111] shadow-xs outline-none focus:border-[#F36922] transition cursor-pointer"
                                 />
                               </div>
 

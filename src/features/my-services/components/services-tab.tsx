@@ -3,8 +3,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Info, Star, Link as LinkIcon } from 'lucide-react';
+import { Info, Star, Link as LinkIcon, AlertTriangle, Check } from 'lucide-react';
 import { ActiveToggleBox } from '@/components/common/active-toggle-box';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { ServiceItem, ServicesSubTab } from '../types/my-services.types';
 
@@ -55,17 +61,29 @@ export function ServicesTab({
   const router = useRouter();
   const [services, setServices] = useState<ServiceItem[]>(INITIAL_SERVICES);
 
-  const toggleServiceStatus = (id: string) => {
+  // Status Change Confirmation Dialog state
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    serviceId: string;
+    newStatus: boolean;
+    serviceTitle: string;
+  } | null>(null);
+
+  const handleRequestToggle = (service: ServiceItem) => {
+    setPendingStatusChange({
+      serviceId: service.id,
+      newStatus: !service.isActive,
+      serviceTitle: service.title,
+    });
+  };
+
+  const handleConfirmStatusChange = () => {
+    if (!pendingStatusChange) return;
+    const { serviceId, newStatus } = pendingStatusChange;
     setServices((prev) =>
-      prev.map((s) => {
-        if (s.id === id) {
-          const updated = !s.isActive;
-          toast.success(`Service status updated to ${updated ? 'Active' : 'Inactive'}`);
-          return { ...s, isActive: updated };
-        }
-        return s;
-      })
+      prev.map((s) => (s.id === serviceId ? { ...s, isActive: newStatus } : s))
     );
+    toast.success(`Service status updated to ${newStatus ? 'Active' : 'Inactive'}`);
+    setPendingStatusChange(null);
   };
 
   const handleCopyLink = (id: string) => {
@@ -84,7 +102,7 @@ export function ServicesTab({
     );
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4 w-full select-none">
       {/* Top Info Banner */}
       <div className="flex items-center gap-2 font-rubik font-semibold text-[15px] leading-[20px] text-[#121111]">
         <Info className="w-4 h-4 text-[#121111] shrink-0" />
@@ -157,10 +175,10 @@ export function ServicesTab({
                       )}
                     </div>
 
-                    {/* Active / Inactive Toggle Pill Box (Matches Figma CSS Frame 2147227556) */}
+                    {/* Active / Inactive Toggle Pill Box */}
                     <ActiveToggleBox
                       isActive={service.isActive}
-                      onToggle={() => toggleServiceStatus(service.id)}
+                      onToggle={() => handleRequestToggle(service)}
                       className="shrink-0"
                     />
                   </div>
@@ -221,6 +239,70 @@ export function ServicesTab({
           </div>
         )}
       </div>
+
+      {/* Confirmation Dialog for Active / Inactive Toggle (Shadcn Dialog) */}
+      <Dialog
+        open={!!pendingStatusChange}
+        onOpenChange={(open) => !open && setPendingStatusChange(null)}
+      >
+        <DialogContent
+          showCloseButton={false}
+          className="w-[400px] max-w-[92vw] bg-white rounded-[24px] p-6 sm:p-7 flex flex-col items-center text-center shadow-xl border border-[#EFEFEF] outline-none select-none"
+        >
+          {/* Status Badge Icon */}
+          <div
+            className={`w-[52px] h-[52px] rounded-full flex items-center justify-center mb-2 ${
+              pendingStatusChange?.newStatus
+                ? 'bg-[#E6F4EA] text-[#046C4E]'
+                : 'bg-[#FEF0E9] text-[#F36922]'
+            }`}
+          >
+            {pendingStatusChange?.newStatus ? (
+              <Check className="w-7 h-7 stroke-[2.5]" />
+            ) : (
+              <AlertTriangle className="w-7 h-7 stroke-[2.5]" />
+            )}
+          </div>
+
+          {/* Title */}
+          <DialogTitle className="font-rubik font-bold text-[22px] leading-[28px] text-[#121111]">
+            {pendingStatusChange?.newStatus
+              ? 'Activate Service?'
+              : 'Deactivate Service?'}
+          </DialogTitle>
+
+          {/* Description */}
+          <DialogDescription className="font-rubik font-normal text-[14px] leading-[21px] text-[#565656] max-w-[310px] mt-2 mb-6">
+            {pendingStatusChange?.newStatus
+              ? `Are you sure you want to set "${pendingStatusChange?.serviceTitle}" to Active? It will become visible to care seekers.`
+              : `Are you sure you want to set "${pendingStatusChange?.serviceTitle}" to Inactive? It will no longer appear in search results.`}
+          </DialogDescription>
+
+          {/* Action Buttons: Cancel & Confirm */}
+          <div className="flex items-center gap-3 w-full">
+            <button
+              type="button"
+              onClick={() => setPendingStatusChange(null)}
+              className="flex-1 h-[46px] bg-[#FEF0E9] hover:bg-[#FDE4D5] text-[#F36922] font-rubik font-semibold text-[15px] rounded-[12px] transition cursor-pointer border-none flex items-center justify-center"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              onClick={handleConfirmStatusChange}
+              className={`flex-1 h-[46px] text-white font-rubik font-semibold text-[15px] rounded-[12px] transition cursor-pointer border-none shadow-xs flex items-center justify-center ${
+                pendingStatusChange?.newStatus
+                  ? 'bg-[#046C4E] hover:bg-[#03553d]'
+                  : 'bg-[#F36922] hover:bg-[#e05813]'
+              }`}
+            >
+              {pendingStatusChange?.newStatus ? 'Activate' : 'Deactivate'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

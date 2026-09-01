@@ -13,7 +13,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { getToken, clearAuth } from '@/lib/cookies';
+import { getToken, clearAuth, getRole, saveRole, UserRole } from '@/lib/cookies';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 
 const Navbar = () => {
     const pathname = usePathname();
@@ -21,15 +23,58 @@ const Navbar = () => {
     const [selectedLanguage, setSelectedLanguage] = useState<'English' | 'Spanish'>('English');
     const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
-    const loggedIn = !!getToken();
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [currentRole, setCurrentRole] = useState<UserRole>('giver');
+
+    React.useEffect(() => {
+        const updateRoleState = () => {
+            setLoggedIn(!!getToken());
+            const role = getRole() || 'giver';
+            setCurrentRole(role);
+        };
+        updateRoleState();
+        window.addEventListener('roleChange', updateRoleState);
+        return () => window.removeEventListener('roleChange', updateRoleState);
+    }, []);
+
+    const handleToggleSwitch = (checked: boolean) => {
+        const newRole: UserRole = checked ? 'giver' : 'seeker';
+        setCurrentRole(newRole);
+        saveRole(newRole);
+        window.dispatchEvent(new Event('roleChange'));
+        if (loggedIn) {
+            toast.success(`Switched to ${checked ? 'Caregiver' : 'Care Seeker'} mode`);
+        } else {
+            toast.info(`Viewing as ${checked ? 'Caregiver' : 'Care Seeker'}`);
+        }
+        router.refresh();
+    };
 
     return (
         <>
-            <nav className="bg-transparent py-3 w-full relative px-8 lg:px-[150px] z-50 flex items-center justify-between">
+            <nav className="bg-transparent max-w-screen-2xl mx-auto py-3 w-full relative px-4 sm:px-8 lg:px-[150px] z-50 flex items-center justify-between gap-4">
                 {/* Logo */}
-                <Link href="/" className="w-[80px] h-[80px] relative cursor-pointer">
+                <Link href="/" className="w-[80px] h-[80px] relative cursor-pointer shrink-0">
                     <Image src="/images/logo2.webp" alt="Logo" fill className="object-contain" />
                 </Link>
+
+                {/* Center: Role Toggle Switch */}
+                <div className="flex items-center gap-3 bg-white rounded-full px-4 py-1.5 border border-[#E4E4E7] shadow-xs select-none">
+                    <span className="font-rubik font-medium text-[13px] sm:text-[14px] text-[#121111] whitespace-nowrap">
+                        {loggedIn
+                            ? (currentRole === 'giver' ? 'Switch to Caregiver' : 'Switch to Care Seeker')
+                            : (currentRole === 'giver' ? 'View as Caregiver' : 'View as Care Seeker')
+                        }
+                    </span>
+                    <Switch
+                        checked={currentRole === 'giver'}
+                        onCheckedChange={handleToggleSwitch}
+                        className={cn(
+                            "transition-colors",
+                            currentRole === 'giver' ? "bg-[#0A0A6E]" : "bg-[#E4E4E4]"
+                        )}
+                    />
+                </div>
 
                 {/* Right Actions */}
                 <div className="hidden lg:flex items-center gap-4">
@@ -168,7 +213,7 @@ const Navbar = () => {
                             <button
                                 type="button"
                                 onClick={() => router.push('/role')}
-                                className=" text-[#121111] h-[44px] px-[20px] rounded-[14px] font-rubik font-medium text-[15px] flex items-center justify-center gap-[8px] transition cursor-pointer border-none outline-none "
+                                className=" text-[#121111] bg-white h-[44px] px-[20px] rounded-[14px] font-rubik font-medium text-[15px] flex items-center justify-center gap-[8px] transition cursor-pointer border-none outline-none "
                             >
                                 <User className="w-[18px] h-[18px] text-[#121111]" />
                                 <span>Sign In</span>
