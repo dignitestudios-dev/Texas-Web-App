@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -9,12 +9,19 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
+  Calendar as CalendarIcon,
 } from 'lucide-react';
+import { getToken } from '@/lib/cookies';
 
 export function CalendarSchedulePage() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedWeek, setSelectedWeek] = useState('Week 1');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    setIsLoggedIn(!!getToken());
+  }, []);
 
   // Days of week header for grid
   const daysHeader = [
@@ -81,14 +88,18 @@ export function CalendarSchedulePage() {
               {/* Row 1 */}
               <span className="py-1">01</span>
               <div className="flex items-center justify-center">
-                <span className="w-6 h-6 rounded-full bg-[#4253F0] text-white flex items-center justify-center font-medium shadow-xs">
-                  02
-                </span>
+                {isLoggedIn ? (
+                  <span className="w-6 h-6 rounded-full bg-[#4253F0] text-white flex items-center justify-center font-medium shadow-xs">
+                    02
+                  </span>
+                ) : (
+                  <span className="py-1">02</span>
+                )}
               </div>
               <span className="py-1">03</span>
               <div className="flex flex-col items-center justify-center py-1">
                 <span>04</span>
-                <span className="w-1 h-1 bg-[#F36922] rounded-full mt-0.5" />
+                {isLoggedIn && <span className="w-1 h-1 bg-[#F36922] rounded-full mt-0.5" />}
               </div>
               <span className="py-1">05</span>
               <span className="py-1">06</span>
@@ -109,7 +120,7 @@ export function CalendarSchedulePage() {
               <span className="py-1">17</span>
               <div className="flex flex-col items-center justify-center py-1">
                 <span>18</span>
-                <span className="w-1 h-1 bg-[#F36922] rounded-full mt-0.5" />
+                {isLoggedIn && <span className="w-1 h-1 bg-[#F36922] rounded-full mt-0.5" />}
               </div>
               <span className="py-1">19</span>
               <span className="py-1">20</span>
@@ -135,69 +146,100 @@ export function CalendarSchedulePage() {
             </div>
           </div>
 
-          {/* Upcoming Events Section */}
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-0.5">
-              <h2 className="font-poppins font-medium text-[14px] text-[#121111]">
-                Upcoming Events
-              </h2>
-              <p className="font-poppins font-light text-[12px] text-[#565656]">
-                Your all upcoming events are below
-              </p>
+          {/* Upcoming Events / Auth Guard Notice */}
+          {isLoggedIn ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-0.5">
+                <h2 className="font-poppins font-medium text-[14px] text-[#121111]">
+                  Upcoming Events
+                </h2>
+                <p className="font-poppins font-light text-[12px] text-[#565656]">
+                  Your all upcoming events are below
+                </p>
+              </div>
+
+              {/* Event Group 1 */}
+              <div className="flex flex-col gap-2">
+                <div className="bg-[#FEF0E9] rounded-[8px] px-3 py-1.5 flex items-center justify-between font-poppins font-medium text-[12px] text-[#121111]">
+                  <span>01 Jan</span>
+                  <span>MON</span>
+                </div>
+
+                <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
+                  <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
+                    I'm searching for a meal prep service.
+                  </span>
+                  <span className="font-poppins font-light text-[12px] text-[#565656]">
+                    8:00am - 10:00am
+                  </span>
+                </div>
+
+                <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
+                  <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
+                    I'm searching for a meal prep service.
+                  </span>
+                  <span className="font-poppins font-light text-[12px] text-[#565656]">
+                    14:00pm - 18:00pm
+                  </span>
+                </div>
+              </div>
+
+              {/* Event Group 2 */}
+              <div className="flex flex-col gap-2">
+                <div className="bg-[#FEF0E9] rounded-[8px] px-3 py-1.5 flex items-center justify-between font-poppins font-medium text-[12px] text-[#121111]">
+                  <span>04 Jan</span>
+                  <span>THU</span>
+                </div>
+
+                <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
+                  <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
+                    I'm searching for a meal prep service.
+                  </span>
+                  <span className="font-poppins font-light text-[12px] text-[#565656]">
+                    8:00am - 10:00am
+                  </span>
+                </div>
+
+                <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
+                  <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
+                    I'm searching for a meal prep service.
+                  </span>
+                  <span className="font-poppins font-light text-[12px] text-[#565656]">
+                    14:00pm - 18:00pm
+                  </span>
+                </div>
+              </div>
             </div>
-
-            {/* Event Group 1 */}
-            <div className="flex flex-col gap-2">
-              <div className="bg-[#FEF0E9] rounded-[8px] px-3 py-1.5 flex items-center justify-between font-poppins font-medium text-[12px] text-[#121111]">
-                <span>01 Jan</span>
-                <span>MON</span>
+          ) : (
+            /* Guest State Prompt */
+            <div className="flex flex-col items-center text-center p-4 bg-white rounded-[16px] border border-[#E4E4E7] shadow-xs gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#FEF0E9] flex items-center justify-center text-[#F36922]">
+                <CalendarIcon className="w-5 h-5 text-[#F36922]" />
               </div>
-
-              <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
-                <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  8:00am - 10:00am
-                </span>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-rubik font-semibold text-[15px] text-[#121111]">
+                  Log In to Access Schedule
+                </h3>
+                <p className="font-rubik font-normal text-[12px] text-[#565656] leading-[17px]">
+                  Please log in to view your booked services, upcoming jobs, and schedule events.
+                </p>
               </div>
-
-              <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
-                <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  14:00pm - 18:00pm
-                </span>
-              </div>
-            </div>
-
-            {/* Event Group 2 */}
-            <div className="flex flex-col gap-2">
-              <div className="bg-[#FEF0E9] rounded-[8px] px-3 py-1.5 flex items-center justify-between font-poppins font-medium text-[12px] text-[#121111]">
-                <span>04 Jan</span>
-                <span>THU</span>
-              </div>
-
-              <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
-                <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  8:00am - 10:00am
-                </span>
-              </div>
-
-              <div className="bg-white/70 rounded-[8px] p-2.5 flex flex-col gap-1 border border-[#E4E4E7]/60 shadow-xs">
-                <span className="font-poppins font-normal text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  14:00pm - 18:00pm
-                </span>
+              <div className="flex flex-col gap-2 w-full mt-1">
+                <Link
+                  href="/login"
+                  className="w-full h-[38px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[13px] rounded-[10px] flex items-center justify-center transition cursor-pointer"
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/role"
+                  className="w-full h-[36px] bg-white hover:bg-neutral-50 border border-[#E4E4E7] text-[#121111] font-rubik font-medium text-[13px] rounded-[10px] flex items-center justify-center transition cursor-pointer"
+                >
+                  Sign Up
+                </Link>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Right Schedule View Area (Flex 1) */}
@@ -210,7 +252,7 @@ export function CalendarSchedulePage() {
                 type="button"
                 className="h-[36px] px-4 bg-white border border-[#EFEFEF] rounded-[8px] font-poppins font-normal text-[13px] text-[#121111] shadow-xs cursor-pointer hover:bg-neutral-50 transition"
               >
-                Week 1
+                {selectedWeek}
               </button>
 
               <div className="flex items-center gap-1">
@@ -281,25 +323,28 @@ export function CalendarSchedulePage() {
                 <div key={idx} className="h-[60px] border-b border-[#EFEFEF]/50 w-full" />
               ))}
 
-              {/* Event 1: 08:00 - 10:00 */}
-              <div className="absolute top-[60px] left-1 right-1 h-[110px] bg-[#EEF2FF] border-l-[4px] border-l-[#F36922] rounded-r-[8px] p-3 shadow-xs flex flex-col justify-center gap-1 hover:shadow-md transition cursor-pointer z-10">
-                <span className="font-poppins font-medium text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  8:00am - 10:00am
-                </span>
-              </div>
+              {/* Event 1 & 2: Only show when logged in */}
+              {isLoggedIn && (
+                <>
+                  <div className="absolute top-[60px] left-1 right-1 h-[110px] bg-[#EEF2FF] border-l-[4px] border-l-[#F36922] rounded-r-[8px] p-3 shadow-xs flex flex-col justify-center gap-1 hover:shadow-md transition cursor-pointer z-10">
+                    <span className="font-poppins font-medium text-[13px] text-[#121111] leading-tight">
+                      I'm searching for a meal prep service.
+                    </span>
+                    <span className="font-poppins font-light text-[12px] text-[#565656]">
+                      8:00am - 10:00am
+                    </span>
+                  </div>
 
-              {/* Event 2: 14:00 - 18:00 */}
-              <div className="absolute top-[420px] left-1 right-1 h-[220px] bg-[#EEF2FF] border-l-[4px] border-l-[#F36922] rounded-r-[8px] p-3 shadow-xs flex flex-col gap-1 hover:shadow-md transition cursor-pointer z-10">
-                <span className="font-poppins font-medium text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  14:00pm - 18:00pm
-                </span>
-              </div>
+                  <div className="absolute top-[420px] left-1 right-1 h-[220px] bg-[#EEF2FF] border-l-[4px] border-l-[#F36922] rounded-r-[8px] p-3 shadow-xs flex flex-col gap-1 hover:shadow-md transition cursor-pointer z-10">
+                    <span className="font-poppins font-medium text-[13px] text-[#121111] leading-tight">
+                      I'm searching for a meal prep service.
+                    </span>
+                    <span className="font-poppins font-light text-[12px] text-[#565656]">
+                      14:00pm - 18:00pm
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Day 2 (Tue 02) Grid */}
@@ -322,15 +367,17 @@ export function CalendarSchedulePage() {
                 <div key={idx} className="h-[60px] border-b border-[#EFEFEF]/50 w-full" />
               ))}
 
-              {/* Event: 10:00 - 16:30 */}
-              <div className="absolute top-[180px] left-1 right-1 h-[340px] bg-[#EEF2FF] border-l-[4px] border-l-[#F36922] rounded-r-[8px] p-3 shadow-xs flex flex-col gap-1 hover:shadow-md transition cursor-pointer z-10">
-                <span className="font-poppins font-medium text-[13px] text-[#121111] leading-tight">
-                  I'm searching for a meal prep service.
-                </span>
-                <span className="font-poppins font-light text-[12px] text-[#565656]">
-                  10:00am - 16:30pm
-                </span>
-              </div>
+              {/* Event: Only show when logged in */}
+              {isLoggedIn && (
+                <div className="absolute top-[180px] left-1 right-1 h-[340px] bg-[#EEF2FF] border-l-[4px] border-l-[#F36922] rounded-r-[8px] p-3 shadow-xs flex flex-col gap-1 hover:shadow-md transition cursor-pointer z-10">
+                  <span className="font-poppins font-medium text-[13px] text-[#121111] leading-tight">
+                    I'm searching for a meal prep service.
+                  </span>
+                  <span className="font-poppins font-light text-[12px] text-[#565656]">
+                    10:00am - 16:30pm
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Day 5 (Fri 05) Grid */}

@@ -188,6 +188,27 @@ export function JobDetailsPage({ jobId }: JobDetailsPageProps) {
               </span>
             </div>
 
+            {/* Contracted Details Section */}
+            <div className="w-full bg-[#F8F9FF] rounded-[14px] p-5 border border-[#EFEFEF] flex flex-col gap-3 my-2">
+              <h4 className="font-rubik font-semibold text-[16px] text-[#121111]">
+                Contracted
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 border-t border-[#EFEFEF]">
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-rubik text-[13px] text-[#565656]">Hourly Rate</span>
+                  <span className="font-rubik font-bold text-[18px] text-[#121111]">$25.00 / hr</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-rubik text-[13px] text-[#565656]">Total Contracted Hours</span>
+                  <span className="font-rubik font-semibold text-[18px] text-[#121111]">40 Hours</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-rubik text-[13px] text-[#565656]">Completion Date</span>
+                  <span className="font-rubik font-medium text-[16px] text-[#121111]">12 March 2026</span>
+                </div>
+              </div>
+            </div>
+
             {/* Photo Gallery Grid */}
             <div className="flex items-center gap-3 pt-2">
               {JOB_PHOTOS.map((photo, idx) => (

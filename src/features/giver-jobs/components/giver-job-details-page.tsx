@@ -241,37 +241,47 @@ export function GiverJobDetailsPage({ jobId = '1' }: GiverJobDetailsPageProps) {
 
             </div>
 
-            {/* Card 2: Contract */}
+            {/* Card 2: Contracted */}
             <div className="w-full bg-white rounded-[12px] shadow-sm border border-[#EFEFEF] overflow-hidden flex flex-col">
               <div className="px-5 py-3.5 border-b border-[#EFEFEF]">
                 <h2 className="font-rubik font-medium text-[18px] text-[#121111]">
-                  Contract
+                  Contracted
                 </h2>
               </div>
 
               <div className="p-6 flex flex-col gap-4">
-                {/* Row 1: Price */}
+                {/* Row 1: Hourly Rate */}
                 <div className="flex justify-between items-center pb-4 border-b border-[#EFEFEF]">
                   <span className="font-rubik font-normal text-[14px] text-[#121111]">
-                    Price
+                    Hourly Rate
                   </span>
-                  <div className="flex items-baseline">
-                    <span className="font-rubik font-bold text-[32px] text-[#121111]">
-                      $12
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-rubik font-bold text-[28px] text-[#121111]">
+                      $25.00
                     </span>
-                    <span className="font-rubik font-normal text-[16px] text-[#121111]">
-                      /Hr
+                    <span className="font-rubik font-normal text-[15px] text-[#727272]">
+                      / hr
                     </span>
                   </div>
                 </div>
 
-                {/* Row 2: Date Deliver */}
+                {/* Row 2: Total Contracted Hours */}
+                <div className="flex justify-between items-center pb-4 border-b border-[#EFEFEF]">
+                  <span className="font-rubik font-normal text-[14px] text-[#121111]">
+                    Total Contracted Hours
+                  </span>
+                  <span className="font-rubik font-semibold text-[18px] text-[#121111]">
+                    40 Hours
+                  </span>
+                </div>
+
+                {/* Row 3: Completion Date */}
                 <div className="flex justify-between items-center">
                   <span className="font-rubik font-normal text-[14px] text-[#121111]">
-                    Date Deliver
+                    Completion Date
                   </span>
-                  <span className="font-rubik font-normal text-[18px] text-[#121111]">
-                    12 march 2026
+                  <span className="font-rubik font-medium text-[16px] text-[#121111]">
+                    12 March 2026
                   </span>
                 </div>
               </div>

@@ -64,8 +64,8 @@ export default function InstantJobsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleSendProposal = (jobId: string) => {
-    setIsOpen(false);
-    router.push(`/freelance-jobs/${jobId}/submit-proposal`);
+
+    router.push(`/find-care`);
   };
 
   return (
@@ -74,16 +74,16 @@ export default function InstantJobsDropdown() {
         {/* Card Trigger (Matches Screenshot 1 - Placed below Switch Card) */}
         <PopoverTrigger>
           <div
-            className="w-[400px] bg-white rounded-[16px] p-3.5 sm:p-5 border border-[#FF3B30] shadow-[0px_0px_25px_rgba(255,59,48,0.35)] flex items-center justify-between gap-3 cursor-pointer hover:scale-[1.01] transition-transform select-none"
+            className="w-[500px] bg-white rounded-[16px] p-3.5 sm:p-8 border border-[#FF3B30] shadow-[0px_0px_25px_rgba(255,59,48,0.35)] flex items-center justify-between gap-3 cursor-pointer hover:scale-[1.01] transition-transform select-none"
           >
             <div className="flex flex-col text-left">
               <div className="flex items-center gap-1.5">
-                <span className="font-rubik font-semibold text-[15px] sm:text-[16px] leading-[20px] text-[#E02424]">
+                <span className="font-rubik font-semibold text-[15px] sm:text-[24px] leading-[20px] text-[#FF0004]">
                   New Instant Jobs
                 </span>
-                <span className="w-2 h-2 rounded-full bg-[#E02424] shrink-0 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#FF0004] shrink-0 animate-pulse" />
               </div>
-              <span className="font-rubik font-light text-[11px] sm:text-[12px] leading-[15px] text-[#565656] mt-0.5">
+              <span className="font-rubik font-light text-[11px] sm:text-[14px] mt-1 leading-[15px] text-[#565656] mt-0.5">
                 Review nearby requests and respond in real time.
               </span>
             </div>

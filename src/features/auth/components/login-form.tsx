@@ -1,18 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useLogin } from '../api/auth.mutations';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useLogin } from '../api/auth.mutations';
 
 const loginSchema = z.object({
-  phoneNumber: z.string().min(12, "Please enter a valid phone number"),
+  phoneNumber: z.string().min(10, 'Please enter a valid phone number'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -20,19 +18,20 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export const LoginForm = () => {
   const { mutate: login, isPending } = useLogin();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const roleParam = searchParams ? searchParams.get('role') : null;
-  const roleTitle = roleParam === 'caregiver' ? 'Care Giver' : roleParam === 'seeker' ? 'Care Seeker' : null;
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<LoginFormValues>({
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { phoneNumber: '' }
+    defaultValues: { phoneNumber: '' },
   });
 
   const phoneNumberValue = watch('phoneNumber');
 
   const onSubmit = (data: LoginFormValues) => {
-    // login({ phoneNumber: data.phoneNumber.replace(/-/g, '') });
     router.replace(`/verification?phone=${encodeURIComponent(data.phoneNumber)}`);
   };
 
@@ -52,95 +51,126 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-[447px] mx-auto space-y-6">
-
-      {/* Header */}
-      <div className="flex flex-col items-center space-y-3">
-        <h1 className="font-rubik font-medium text-[26px] leading-[31px] tracking-[-0.408px] text-[#121111]">
+    <div className="flex flex-col items-center w-full max-w-[440px] mx-auto select-none">
+      
+      {/* Header (Matches Screenshot) */}
+      <div className="flex flex-col items-center mb-6">
+        <h1 className="font-rubik font-bold text-[28px] sm:text-[32px] leading-[38px] text-[#121111] text-center">
           Welcome Back
         </h1>
-        <p className="font-poppins font-normal text-[14px] leading-[1.2] text-center text-[#565656]">
-          {roleTitle ? `Please enter your details to log in as ${roleTitle}.` : 'Please enter your details to log in.'}
+        <p className="font-rubik font-normal text-[14px] sm:text-[15px] leading-[22px] text-[#565656] text-center mt-1.5">
+          Sign in to access your account and continue where you left off.
         </p>
       </div>
 
-      {/* Social Logins */}
-      <div className="flex flex-row justify-center items-start gap-5 w-full">
-        <Button variant="ghost" className="flex-1 flex flex-row justify-center items-center py-[14px] px-[16px] gap-[6px] h-[50px] bg-white rounded-xl hover:bg-gray-50 transition-colors shadow-none border-none">
-          <Image src="/images/google-icon.svg" alt="Google" width={16} height={16} />
-          <span className="font-rubik font-medium text-[15px] leading-[1.35] text-center capitalize text-[#121111]">
-            Continue With Google
-          </span>
-        </Button>
-
-        <Button variant="ghost" className="flex-1 flex flex-row justify-center items-center py-[14px] px-[16px] gap-[6px] h-[50px] bg-white rounded-xl hover:bg-gray-50 transition-colors shadow-none border-none">
-          <Image src="/images/apple-icon.svg" alt="Apple" width={16} height={16} />
-          <span className="font-rubik font-medium text-[15px] leading-[1.35] text-center capitalize text-[#121111]">
-            Continue With Apple
-          </span>
-        </Button>
-      </div>
-
-      {/* Divider */}
-      <div className="flex flex-row items-center gap-[10px] w-full">
-        <div className="flex-1 border-t border-[#EFEFEF]"></div>
-        <span className="font-rubik font-medium text-[16px] leading-[1.35] text-center capitalize text-[#121111]">
-          Or
-        </span>
-        <div className="flex-1 border-t border-[#EFEFEF]"></div>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full space-y-8">
-
-        {/* Phone Input Container */}
-        <div className="flex flex-row items-center gap-2 w-full">
-          {/* Country Code */}
-          <div className="flex flex-row items-center justify-center gap-2 w-[112px] h-[44px] bg-white  shrink-0 rounded-xl">
-            <Image src="/images/us-flag.svg" alt="US" width={24} height={18} className="" />
-            <span className="font-poppins font-medium text-[14px] text-[#181818]">
+      {/* Main Login Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col w-full">
+        
+        {/* Phone Input Row: Country Code + Phone Input */}
+        <div className="flex flex-row items-center gap-2.5 w-full">
+          {/* Country Code Pill */}
+          <div className="box-border flex flex-row items-center justify-center gap-2 w-[80px] sm:w-[86px] h-[52px] bg-white border border-[#EFEFEF] rounded-[12px] shadow-2xs shrink-0">
+            <Image
+              src="/images/us-flag.svg"
+              alt="US Flag"
+              width={22}
+              height={16}
+              className="object-contain"
+            />
+            <span className="font-rubik font-medium text-[15px] text-[#121111]">
               +1
             </span>
           </div>
 
-          {/* Input */}
+          {/* Input Box */}
           <div className="flex-1 flex flex-col">
-            <Input
+            <input
               type="tel"
               placeholder="Add phone number"
-              className={`h-[44px] bg-white rounded-xl px-4 font-poppins text-[14px] text-[#181818] placeholder:text-[#727272] outline-none focus-visible:ring-2 focus-visible:ring-[#F36922] focus-visible:ring-offset-0 border-none ${errors.phoneNumber ? 'ring-2 ring-red-500' : ''}`}
               value={phoneNumberValue}
               onChange={handlePhoneChange}
               maxLength={12}
+              className={`h-[52px] bg-white rounded-[12px] px-4 font-rubik text-[15px] text-[#121111] placeholder:text-[#8E8E93] border border-[#EFEFEF] shadow-2xs outline-none focus:border-[#F36922] transition-colors ${
+                errors.phoneNumber ? 'border-red-500' : ''
+              }`}
             />
           </div>
         </div>
+
         {errors.phoneNumber && (
-          <p className="text-red-500 text-sm font-poppins  -mt-5">{errors.phoneNumber.message}</p>
+          <span className="text-red-500 text-[13px] font-rubik mt-1.5 ml-1">
+            {errors.phoneNumber.message}
+          </span>
         )}
 
-        {/* Continue Button */}
-        <Button
+        {/* Continue CTA Button */}
+        <button
           type="submit"
           disabled={isPending}
-          className="flex flex-row justify-center items-center py-[14px] px-[16px] gap-[6px] w-full h-[48px] bg-[#F36922] rounded-xl hover:bg-[#E55A13] transition-colors disabled:opacity-70 text-white"
+          className="w-full h-[52px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[16px] rounded-[12px] shadow-sm transition cursor-pointer border-none flex items-center justify-center mt-4 disabled:opacity-70"
         >
-          <span className="font-rubik font-medium text-[15px] leading-[1.35] text-center capitalize">
-            {isPending ? 'Loading...' : 'Continue'}
-          </span>
-        </Button>
+          {isPending ? 'Loading...' : 'Continue'}
+        </button>
 
       </form>
 
-      {/* Footer text */}
-      <div className="pt-2">
-        <p className="font-poppins font-medium text-[14px] leading-[1.2] text-center text-[#181818]">
-          Don't have an account?{' '}
-          <Link href="/register" className="font-bold hover:underline">
-            Create Now
-          </Link>
-        </p>
+      {/* Divider */}
+      <div className="flex items-center gap-3 w-full my-6">
+        <div className="flex-1 h-[1px] bg-[#E4E4E7]" />
+        <span className="font-rubik font-normal text-[14px] text-[#565656]">
+          Or
+        </span>
+        <div className="flex-1 h-[1px] bg-[#E4E4E7]" />
       </div>
+
+      {/* Social Logins: Google & Apple */}
+      <div className="flex items-center gap-3.5 w-full">
+        <button
+          type="button"
+          className="flex-1 h-[48px] bg-white hover:bg-neutral-50 border border-[#EFEFEF] rounded-[12px] flex items-center justify-center gap-2 text-[#121111] font-rubik font-medium text-[14px] shadow-2xs transition cursor-pointer"
+        >
+          <Image
+            src="/images/google-icon.svg"
+            alt="Google"
+            width={18}
+            height={18}
+          />
+          <span>Continue With Google</span>
+        </button>
+
+        <button
+          type="button"
+          className="flex-1 h-[48px] bg-white hover:bg-neutral-50 border border-[#EFEFEF] rounded-[12px] flex items-center justify-center gap-2 text-[#121111] font-rubik font-medium text-[14px] shadow-2xs transition cursor-pointer"
+        >
+          <Image
+            src="/images/apple-icon.svg"
+            alt="Apple"
+            width={18}
+            height={18}
+          />
+          <span>Continue With Apple</span>
+        </button>
+      </div>
+
+      {/* Footer Account Creation Link */}
+      {/* <p className="font-rubik text-[14px] text-[#121111] text-center mt-6">
+        Don’t have an account?{' '}
+        <Link href="/role" className="font-semibold text-[#121111] hover:underline">
+          Create Now
+        </Link>
+      </p> */}
+
+      {/* Terms & Privacy Policy */}
+      <p className="font-rubik text-[13px] text-[#565656] text-center mt-3">
+        I Accept The{' '}
+        <Link href="#" className="text-[#F36922] font-semibold hover:underline">
+          Terms & Conditions
+        </Link>{' '}
+        And{' '}
+        <Link href="#" className="text-[#F36922] font-semibold hover:underline">
+          Privacy Policy
+        </Link>
+      </p>
 
     </div>
   );

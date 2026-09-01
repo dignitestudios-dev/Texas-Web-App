@@ -35,12 +35,15 @@ import { GiverExploreTab } from './giver-explore-tab';
 import { GiverAppliedTab } from './giver-applied-tab';
 import { GiverActiveTab, GiverJobSubTab } from './giver-active-tab';
 import { GiverHistoryTab } from './giver-history-tab';
+import { getToken } from '@/lib/cookies';
 
 export function GiverMyJobsPage() {
   const router = useRouter();
+  const isLoggedIn = !!getToken()
   const [activeTab, setActiveTab] = useState<'explore' | 'applied' | 'active' | 'history'>('explore');
   const [activeSubTab, setActiveSubTab] = useState<GiverJobSubTab>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
+
 
   // Filters State
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -180,7 +183,7 @@ export function GiverMyJobsPage() {
         <div className="w-full max-w-[1280px] flex flex-col md:flex-row items-start gap-0 mt-2 bg-transparent">
           {/* Left Navigation Sidebar */}
           <div className="w-full md:w-[150px] flex flex-row md:flex-col items-start gap-[18px] shrink-0 p-0 mb-6 md:mb-0 overflow-x-auto pb-2 md:pb-0">
-            {/* Explore Tab */}
+            {/* Explore Tab (Always visible) */}
             <button
               type="button"
               onClick={() => setActiveTab('explore')}
@@ -198,59 +201,64 @@ export function GiverMyJobsPage() {
               </span>
             </button>
 
-            {/* Applied Tab */}
-            <button
-              type="button"
-              onClick={() => setActiveTab('applied')}
-              className={`box-border flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition shadow-xs shrink-0 ${
-                activeTab === 'applied'
-                  ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white'
-                  : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#EEF0F8]'
-              }`}
-            >
-              <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
-                <Users className="w-5 h-5" />
-              </div>
-              <span className="font-rubik font-medium text-[15px] leading-[18px] tracking-[-0.005em]">
-                Applied
-              </span>
-            </button>
+            {/* Other Tabs: Only rendered when user is logged in */}
+            {isLoggedIn && (
+              <>
+                {/* Applied Tab */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('applied')}
+                  className={`box-border flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition shadow-xs shrink-0 ${
+                    activeTab === 'applied'
+                      ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white'
+                      : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#EEF0F8]'
+                  }`}
+                >
+                  <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <span className="font-rubik font-medium text-[15px] leading-[18px] tracking-[-0.005em]">
+                    Applied
+                  </span>
+                </button>
 
-            {/* Active Tab */}
-            <button
-              type="button"
-              onClick={() => setActiveTab('active')}
-              className={`box-border flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition shadow-xs shrink-0 ${
-                activeTab === 'active'
-                  ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white'
-                  : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#EEF0F8]'
-              }`}
-            >
-              <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
-                <Eye className="w-5 h-5" />
-              </div>
-              <span className="font-rubik font-medium text-[15px] leading-[18px] tracking-[-0.005em]">
-                Active
-              </span>
-            </button>
+                {/* Active Tab */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('active')}
+                  className={`box-border flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition shadow-xs shrink-0 ${
+                    activeTab === 'active'
+                      ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white'
+                      : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#EEF0F8]'
+                  }`}
+                >
+                  <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
+                    <Eye className="w-5 h-5" />
+                  </div>
+                  <span className="font-rubik font-medium text-[15px] leading-[18px] tracking-[-0.005em]">
+                    Active
+                  </span>
+                </button>
 
-            {/* History Tab */}
-            <button
-              type="button"
-              onClick={() => setActiveTab('history')}
-              className={`box-border flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition shadow-xs shrink-0 ${
-                activeTab === 'history'
-                  ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white'
-                  : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#EEF0F8]'
-              }`}
-            >
-              <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
-                <Briefcase className="w-5 h-5" />
-              </div>
-              <span className="font-rubik font-medium text-[15px] leading-[18px] tracking-[-0.005em]">
-                History
-              </span>
-            </button>
+                {/* History Tab */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('history')}
+                  className={`box-border flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition shadow-xs shrink-0 ${
+                    activeTab === 'history'
+                      ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white'
+                      : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#EEF0F8]'
+                  }`}
+                >
+                  <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
+                    <Briefcase className="w-5 h-5" />
+                  </div>
+                  <span className="font-rubik font-medium text-[15px] leading-[18px] tracking-[-0.005em]">
+                    History
+                  </span>
+                </button>
+              </>
+            )}
           </div>
 
           {/* Vertical Separator Line */}

@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Compass,
 } from 'lucide-react';
+import { getToken } from '@/lib/cookies';
 
 interface JobDetailData {
   id: string;
@@ -127,6 +128,7 @@ const SAMPLE_JOB_DETAILS: Record<string, JobDetailData> = {
 export default function JobDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const isLoggedIn = !!getToken()
   const jobId = (params?.id as string) || '1';
 
   const job = SAMPLE_JOB_DETAILS[jobId] || {
@@ -259,7 +261,8 @@ export default function JobDetailPage() {
             </div>
 
             {/* Send Proposal Button */}
-            <button
+            {isLoggedIn && 
+             <button
               type="button"
               onClick={() => router.push(`/freelance-jobs/${job.id}/submit-proposal`)}
               className="w-full h-[54px] bg-[#F36922] hover:bg-[#e05813] text-white rounded-[8px] flex items-center justify-center gap-2.5 font-rubik font-medium text-[15px] leading-[24px] cursor-pointer shadow-xs transition border-none outline-none"
@@ -267,6 +270,8 @@ export default function JobDetailPage() {
               <FileText className="w-5 h-5 text-white" />
               <span>Send Proposal</span>
             </button>
+            }
+         
 
             {/* Poster Info Card */}
             <div

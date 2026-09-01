@@ -15,7 +15,9 @@ import {
   ChevronRight,
   Info,
   BadgeDollarSign,
+  ArrowLeft,
 } from 'lucide-react';
+import { getToken } from '@/lib/cookies';
 
 export interface CareRequestItem {
   id: string;
@@ -221,24 +223,27 @@ export function GiverExploreTab({
 
       {/* Section 1: Recommended Care Requests Carousel (Frame 2147228947) */}
       <div className="w-full flex flex-col items-start gap-[9px]">
-        {/* Section Title */}
-        <h3 className="font-rubik font-medium text-[16px] leading-[19px] tracking-[-0.005em] text-[#121111]">
-          Recommended Care Requests
-        </h3>
+        {/* Section Header: Title & Top Carousel Navigation Controls */}
+        <div className="w-full flex items-center justify-between">
+          <h3 className="font-rubik font-medium text-[16px] leading-[19px] tracking-[-0.005em] text-[#121111]">
+            Recommended Care Requests
+          </h3>
+
+        </div>
 
         {/* Carousel Viewport Container */}
         <div className="relative w-full group">
-          {/* Left Arrow Button */}
+          {/* Left Floating Arrow Button */}
           <button
             type="button"
             onClick={scrollPrev}
             disabled={!canScrollPrev}
             aria-label="Previous recommended requests"
-            className={`absolute -left-4 top-1/2 -translate-y-1/2 w-[50px] h-[50px] bg-white rounded-full shadow-[2px_2px_50px_rgba(0,0,0,0.1)] flex items-center justify-center transition z-20 border border-neutral-100 cursor-pointer hidden sm:flex ${
-              !canScrollPrev ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-50 hover:scale-105'
+            className={`absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-[48px] h-[48px] bg-white rounded-full shadow-[0px_4px_20px_rgba(0,0,0,0.15)] flex items-center justify-center transition-all duration-200 z-30 border border-neutral-200 cursor-pointer hidden sm:flex opacity-0 group-hover:opacity-100 ${
+              !canScrollPrev ? 'group-hover:opacity-30 cursor-not-allowed' : 'hover:bg-neutral-50 hover:scale-105'
             }`}
           >
-            <ChevronLeft className="w-6 h-6 text-[#121111]" />
+            <ArrowLeft className="w-5 h-5 text-[#121111]" />
           </button>
 
           {/* Embla Viewport (Frame 2147227317) */}
@@ -259,14 +264,14 @@ export function GiverExploreTab({
             </div>
           </div>
 
-          {/* Right Arrow Button */}
+          {/* Right Floating Arrow Button (on top of carousel) */}
           <button
             type="button"
             onClick={scrollNext}
             disabled={!canScrollNext}
             aria-label="Next recommended requests"
-            className={`absolute -right-4 top-1/2 -translate-y-1/2 w-[50px] h-[50px] bg-white rounded-full shadow-[2px_2px_50px_rgba(0,0,0,0.1)] flex items-center justify-center transition z-20 border border-neutral-100 cursor-pointer hidden sm:flex ${
-              !canScrollNext ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-50 hover:scale-105'
+            className={`absolute -right-3 sm:right-32 top-1/2 -translate-y-1/2 w-[48px] h-[48px] bg-white rounded-full shadow-[0px_4px_20px_rgba(0,0,0,0.15)] flex items-center justify-center transition-all duration-200 z-30 border border-neutral-200 cursor-pointer flex opacity-0 group-hover:opacity-100 ${
+              !canScrollNext ? 'group-hover:opacity-30 cursor-not-allowed' : 'hover:bg-neutral-50 hover:scale-105'
             }`}
           >
             <ChevronRight className="w-6 h-6 text-[#121111]" />
@@ -318,6 +323,7 @@ export function CareRequestCard({
   onOpenChat,
   onViewDetails,
 }: CareRequestCardProps) {
+  const isLoggedIn = !!getToken()
   return (
     <div className="w-full max-w-[528px] h-full min-h-[265px] bg-white border-b border-[#EFEFEF]/86 rounded-[12px] p-[15px]  flex flex-col justify-between gap-3 box-border">
       {/* Top Row: Seeker Avatar, Info, Pricing & Schedule (Frame 2147227592) */}
@@ -401,13 +407,14 @@ export function CareRequestCard({
 
       {/* Bottom Action Row (Frame 2147227593) */}
       <div className="flex justify-end items-center gap-2.5 pt-1">
-        <button
+        {isLoggedIn && <button
           type="button"
           onClick={onOpenChat}
           className="h-[32px] px-3.5 bg-[#F36922] hover:bg-[#e05813] text-white rounded-[100px] font-rubik font-medium text-[13px] leading-[18px] transition cursor-pointer flex items-center justify-center border-none shadow-xs"
         >
           Open Chat
-        </button>
+        </button>}
+
         <button
           type="button"
           onClick={onViewDetails}
