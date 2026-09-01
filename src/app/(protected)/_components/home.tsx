@@ -40,7 +40,7 @@ function Home() {
     {
       title: 'Post a Care Request',
       image: '/images/home/profile.webp',
-      link: '/my-jobs',
+      link: '/care-request',
       requiresAuth: true,
       description: "Tell caregivers exactly what you need. Create a public service request and receive interest from qualified caregivers ready to help.",
     },
@@ -57,6 +57,13 @@ function Home() {
       link: '/leaderboard',
       requiresAuth: false,
       description: "Discover the platform's highest-performing caregivers based on ratings, reviews, and service quality. Find trusted professionals with confidence.",
+    },
+    {
+      title: 'Stay on Schedule',
+      image: '/giver/calender.webp',
+      link: '/calendar',
+      requiresAuth: true,
+      description: "Keep track of your scheduled care bookings, upcoming appointments, and caregiver sessions all organized in one convenient calendar.",
     },
     {
       title: 'Chat with Caregivers',
@@ -79,7 +86,7 @@ function Home() {
       title: 'Manage your Jobs',
       image: '/giver/my-jobs.webp',
       link: '/my-jobs',
-      requiresAuth: false,
+      requiresAuth: true,
       description: "Track all your job activity in one place. View service requests, monitor applications you've submitted, and manage jobs through Pending, Ongoing, and Completed stages.",
     },
     {
@@ -100,7 +107,7 @@ function Home() {
       title: 'Stay on Schedule',
       image: '/giver/calender.webp',
       link: '/calendar',
-      requiresAuth: false,
+      requiresAuth: true,
       description: "Keep all your accepted jobs and upcoming services organized in one calendar. Bookings are automatically added so you can easily manage your time and availability.",
     },
     {

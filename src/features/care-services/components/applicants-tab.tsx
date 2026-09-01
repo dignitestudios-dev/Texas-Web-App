@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,8 +10,8 @@ import {
   Locate,
   DollarSign,
   ArrowRight,
+  Info,
 } from 'lucide-react';
-import { ImageCarouselModal } from './image-carousel-modal';
 
 interface ApplicantJobCard {
   id: string;
@@ -43,7 +43,10 @@ const APPLICANTS_JOBS: ApplicantJobCard[] = [
     location: 'San Juan, Texas',
     distance: '14 miles away',
     applicantsCount: 2,
-    avatars: ['/images/avatar.webp', '/images/giver.webp'],
+    avatars: [
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+    ],
   },
   {
     id: 'app-2',
@@ -58,119 +61,128 @@ const APPLICANTS_JOBS: ApplicantJobCard[] = [
     location: 'San Juan, Texas',
     distance: '14 miles away',
     applicantsCount: 5,
-    avatars: ['/images/avatar.webp', '/images/giver.webp', '/images/home/profile.webp'],
+    avatars: [
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+    ],
   },
 ];
 
 export function ApplicantsTab() {
   const router = useRouter();
-  const [carouselState, setCarouselState] = useState<{
-    isOpen: boolean;
-    images: string[];
-    index: number;
-  }>({
-    isOpen: false,
-    images: [],
-    index: 0,
-  });
 
   return (
-    <div className="w-full h-full overflow-y-auto pr-2 pb-8 scrollbar-thin flex flex-col gap-[20px]">
-      {APPLICANTS_JOBS.map((job) => (
-        <div
-          key={job.id}
-          className="w-full max-w-[1076px] mx-auto bg-white rounded-[12px] shadow-[2px_2px_50px_rgba(0,0,0,0.1)] border border-[#EFEFEF]/86 p-[20px] flex flex-col gap-[16px]"
-        >
-          {/* Row 1: Title & Budget Tag */}
-          <div className="flex flex-row justify-between items-start w-full border-b border-[#EFEFEF]/86 pb-[16px]">
-            <div className="flex flex-col gap-[6px]">
-              <h3 className="font-rubik font-medium text-[16px] text-[#121111] leading-[19px] tracking-[-0.005em]">
-                {job.title}
-              </h3>
-              <span className="font-rubik font-normal text-[13px] text-[#121111]/70">
-                {job.category}
-              </span>
-            </div>
-
-            {/* Budget Tag */}
-            <div className="h-[48px] px-[20px] bg-[#F1F5F9] rounded-full flex items-center justify-center gap-2 border border-transparent">
-              <DollarSign className="w-5 h-5 text-[#121111] shrink-0" />
-              <span className="font-rubik font-medium text-[24px] text-[#121111] leading-[28px] tracking-tight">
-                {job.budget}
-              </span>
-            </div>
+    <div className="w-full h-full overflow-y-auto pr-1 pb-10 scrollbar-thin select-none">
+      <div className="flex flex-col gap-6 w-full max-w-[1280px] mx-auto text-left">
+        
+        {/* Info Banner Row with View Your Calendar Button */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
+          <div className="flex items-center gap-2 text-[#121111] font-rubik font-medium text-[14px] sm:text-[15px] leading-[20px]">
+            <Info className="w-4 h-4 text-[#121111] shrink-0" />
+            <span>See caregivers who have applied to your requests.</span>
           </div>
 
-          {/* Row 2: Description */}
-          <p className="font-sans font-medium text-[14px] text-[#181818] leading-[19px] text-left">
-            {job.description}
-          </p>
-
-          {/* Row 3: Meta Info Row */}
-          <div className="flex flex-row flex-wrap items-center gap-[24px] text-[#181818] text-[14px] font-medium leading-[19px] border-b border-[#EFEFEF]/86 pb-[16px]">
-            <div className="flex items-center gap-1.5">
-              <DollarSign className="w-4 h-4 text-[#181818] shrink-0" />
-              <span>{job.payRange}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#181818] shrink-0" />
-              <span>{job.time}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CalendarIcon className="w-4 h-4 text-[#181818] shrink-0" />
-              <span>{job.date}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#181818] shrink-0" />
-              <span>{job.location}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Locate className="w-4 h-4 text-[#181818] shrink-0" />
-              <span>{job.distance}</span>
-            </div>
-          </div>
-
-          {/* Row 4: Overlapping Avatars & View Details CTA */}
-          <div className="flex flex-row justify-between items-center w-full">
-            {/* Overlapping Avatars & Count */}
-            <div className="flex flex-row items-center gap-[12px]">
-              <div className="flex flex-row items-center">
-                {job.avatars.map((avatar, idx) => (
-                  <div
-                    key={idx}
-                    className={`w-[43px] h-[43px] rounded-full overflow-hidden border-2 border-white shadow-sm relative bg-[#FEF0E9] ${
-                      idx > 0 ? '-ml-[16px]' : ''
-                    }`}
-                  >
-                    <Image src={avatar} alt="Applicant" fill className="object-cover" />
-                  </div>
-                ))}
-              </div>
-              <span className="font-rubik font-semibold text-[16px] text-[#121111]">
-                {job.applicantsCount} Applicants
-              </span>
-            </div>
-
-            {/* View Details Button */}
-            <button
-              type="button"
-              onClick={() => router.push(`/my-jobs/applications/${job.id}`)}
-              className="h-[48px] px-[24px] bg-[#0A0A6E] hover:bg-[#080856] text-white rounded-full flex items-center justify-center gap-2 font-poppins font-medium text-[15px] cursor-pointer transition border-none outline-none shadow-sm"
-            >
-              <span>View Details</span>
-              <ArrowRight className="w-5 h-5 text-white" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => router.push('/calendar')}
+            className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[10px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-sm shrink-0"
+          >
+            <span>View Your Calendar</span>
+            <CalendarIcon className="w-4 h-4 text-white" />
+          </button>
         </div>
-      ))}
 
-      {/* Image Carousel Modal */}
-      <ImageCarouselModal
-        isOpen={carouselState.isOpen}
-        onClose={() => setCarouselState((prev) => ({ ...prev, isOpen: false }))}
-        images={carouselState.images}
-        initialIndex={carouselState.index}
-      />
+        {/* List of Job Cards */}
+        <div className="flex flex-col gap-6 w-full">
+          {APPLICANTS_JOBS.map((job) => (
+            <div
+              key={job.id}
+              className="w-full bg-white rounded-[24px] shadow-[0_2px_15px_rgba(0,0,0,0.06)] border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left"
+            >
+              {/* Title & Budget */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">
+                <div className="flex flex-col gap-0.5">
+                  <h4 className="font-rubik font-semibold text-[17px] sm:text-[18px] text-[#121111]">
+                    {job.title}
+                  </h4>
+                  <span className="text-[13.5px] font-rubik text-[#565656]">
+                    {job.category}
+                  </span>
+                </div>
+                <div className="bg-[#F0F4FA] rounded-full px-3.5 py-1.5 flex items-center gap-1 font-rubik font-bold text-[18px] text-[#121111]">
+                  <span className="text-[15px] font-medium text-[#565656]">$</span>
+                  <span>{job.budget}</span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p className="font-rubik font-normal text-[14px] leading-[22px] text-[#565656]">
+                {job.description}
+              </p>
+
+              {/* Metadata */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[#565656] text-[13px] font-rubik">
+                <div className="flex items-center gap-1.5">
+                  <DollarSign className="w-4 h-4 text-[#565656] shrink-0" />
+                  <span>{job.payRange}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-[#565656] shrink-0" />
+                  <span>{job.time}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CalendarIcon className="w-4 h-4 text-[#565656] shrink-0" />
+                  <span>{job.date}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-[#565656] shrink-0" />
+                  <span>{job.location}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Locate className="w-4 h-4 text-[#565656] shrink-0" />
+                  <span>{job.distance}</span>
+                </div>
+              </div>
+
+              {/* Bottom Row: Overlapping Avatars & View Details Button */}
+              <div className="flex items-center justify-between w-full border-t border-[#F0F0F0] pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center">
+                    {job.avatars.map((avatar, idx) => (
+                      <div
+                        key={idx}
+                        className="w-[36px] h-[36px] rounded-full overflow-hidden border-2 border-white shadow-xs relative bg-[#F8F9FF] -ml-2.5 first:ml-0"
+                      >
+                        <Image
+                          src={avatar}
+                          alt="Applicant"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <span className="font-rubik font-semibold text-[15px] sm:text-[16px] text-[#121111]">
+                    {job.applicantsCount} Applicants
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => router.push(`/my-jobs/applications/${job.id}`)}
+                  className="h-[42px] px-6 bg-[#0A0A6E] hover:bg-[#06064B] text-white font-rubik font-medium text-[14px] rounded-full transition cursor-pointer border-none shadow-xs flex items-center gap-2"
+                >
+                  <span>View Details</span>
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
     </div>
   );
 }

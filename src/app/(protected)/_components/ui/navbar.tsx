@@ -59,11 +59,15 @@ const Navbar = () => {
                 </Link>
 
                 {/* Center: Role Toggle Switch */}
-                <div className="flex items-center gap-3 bg-white rounded-full px-4 py-1.5 border border-[#E4E4E7] shadow-xs select-none">
+             
+
+                {/* Right Actions */}
+                <div className="hidden lg:flex items-center gap-4">
+                       <div className="flex items-center gap-3 bg-white rounded-full px-4 py-1 border border-[#E4E4E7] shadow-xs select-none">
                     <span className="font-rubik font-medium text-[13px] sm:text-[14px] text-[#121111] whitespace-nowrap">
                         {loggedIn
-                            ? (currentRole === 'giver' ? 'Switch to Caregiver' : 'Switch to Care Seeker')
-                            : (currentRole === 'giver' ? 'View as Caregiver' : 'View as Care Seeker')
+                            ? (currentRole === 'giver' ? 'Switch to Care Seeker' : 'Switch to Caregiver')
+                            : (currentRole === 'giver' ? 'View as Care Seeker' : 'View as Care Giver')
                         }
                     </span>
                     <Switch
@@ -75,9 +79,6 @@ const Navbar = () => {
                         )}
                     />
                 </div>
-
-                {/* Right Actions */}
-                <div className="hidden lg:flex items-center gap-4">
                     {loggedIn ? (
                         <>
                             <DropdownMenu>

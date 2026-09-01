@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight, Star, Award, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Star, Award, Sparkles, User } from 'lucide-react';
 import {
   Select,
   SelectTrigger,
@@ -254,7 +254,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Podiums Section (Top 3 Podiums Layout) */}
-        <div className="w-full max-w-7xl flex flex-col md:flex-row items-end justify-center gap-[30px] lg:gap-[50px] pt-12 pb-6 shrink-0 relative min-h-[600px] lg:h-[620px]">
+        <div className="w-full max-w-7xl flex flex-col md:flex-row items-end justify-center gap-[30px] lg:gap-[50px] pt-12 -mb-12 shrink-0 relative min-h-[600px] lg:h-[620px]">
           
           {/* Decorative blur glows behind podiums */}
           <div className="absolute w-[140px] h-[140px] bg-[#1E2D34]/30 filter blur-[75px] left-[15%] bottom-[40%] pointer-events-none" />
@@ -362,7 +362,7 @@ export default function LeaderboardPage() {
                 className="object-contain z-0"
               />
               {/* Rank Number Badge */}
-              <div className="relative z-10 mt-1 w-[52px] h-[52px] bg-[#E2E2E2] rounded-[16px] shadow-sm flex items-center justify-center font-rubik font-bold text-white text-[28px]">
+              <div className="relative z-10 mt-1 w-[52px] h-[52px] bg-[#F6E189] rounded-[16px] shadow-sm flex items-center justify-center font-rubik font-bold text-white text-[28px]">
                 1
               </div>
               {/* Star Rating details pill */}
@@ -421,7 +421,7 @@ export default function LeaderboardPage() {
                 className="object-contain z-0"
               />
               {/* Rank Number Badge */}
-              <div className="relative z-10 mt-1 w-[46px] h-[46px] bg-[#E2E2E2] rounded-[14px] shadow-sm flex items-center justify-center font-rubik font-bold text-white text-[24px]">
+              <div className="relative z-10 mt-1 w-[46px] h-[46px] bg-[#CFA960] rounded-[14px] shadow-sm flex items-center justify-center font-rubik font-bold text-white text-[24px]">
                 3
               </div>
               {/* Star Rating details pill */}
@@ -512,7 +512,7 @@ export default function LeaderboardPage() {
                         onClick={() => router.push(`/leaderboard/${getCaregiverId(row.name)}`)}
                         className="h-[36px] px-4 bg-white border border-[#E4E4E7] hover:bg-neutral-50 text-black rounded-lg text-[13px] font-medium transition cursor-pointer flex items-center gap-1.5 mx-auto outline-none"
                       >
-                        <span className="text-[14px]">👤</span>
+                        <span className="text-[14px]"><User size={15} /></span>
                         View Profile
                       </button>
                     </td>

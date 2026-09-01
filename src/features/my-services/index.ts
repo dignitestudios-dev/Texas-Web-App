@@ -1,6 +1,7 @@
 export * from './types/my-services.types';
 export * from './components/my-services-page';
 export * from './components/my-services-sidebar';
+export * from './components/seeker-explore-tab';
 export * from './components/services-tab';
 export * from './components/requests-tab';
 export * from './components/active-tab';
