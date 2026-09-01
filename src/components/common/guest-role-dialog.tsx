@@ -30,7 +30,7 @@ export function GuestRoleDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
         className="w-[95%] max-w-[480px] p-6 sm:p-8 bg-white rounded-[24px] border border-[#EFEFEF] shadow-2xl flex flex-col items-center gap-6 text-center select-none outline-none"
         showCloseButton={false}
