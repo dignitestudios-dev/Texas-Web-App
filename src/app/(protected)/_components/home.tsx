@@ -5,20 +5,29 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ChatPopup from './chat-popup';
 import InstantJobsDropdown from './instant-jobs-dropdown';
-import { Switch } from '@/components/ui/switch';
-import { getRole, updateRole, getToken } from '@/lib/cookies';
+import { getRole, updateRole, getToken, UserRole } from '@/lib/cookies';
 import { AuthGuardDialog } from '@/components/common/auth-guard-dialog';
+import { GuestRoleDialog } from '@/components/common/guest-role-dialog';
+import { Switch } from '@/components/ui/switch';
 
 function Home() {
   const router = useRouter();
   const [isCaregiver, setIsCaregiver] = useState(false);
   const [isAuthGuardOpen, setIsAuthGuardOpen] = useState(false);
+  const [isGuestRoleOpen, setIsGuestRoleOpen] = useState(false);
 
   useEffect(() => {
+    const role = getRole();
+    if (!role) {
+      setIsGuestRoleOpen(true);
+    } else {
+      setIsCaregiver(role === 'giver');
+    }
+
     const updateRoleState = () => {
-      setIsCaregiver(getRole() === 'giver');
+      const currentRole = getRole();
+      setIsCaregiver(currentRole === 'giver');
     };
-    updateRoleState();
     window.addEventListener('roleChange', updateRoleState);
     return () => window.removeEventListener('roleChange', updateRoleState);
   }, []);
@@ -40,7 +49,7 @@ function Home() {
     {
       title: 'Post a Care Request',
       image: '/images/home/profile.webp',
-      link: '/care-request',
+      link: '/my-jobs',
       requiresAuth: true,
       description: "Tell caregivers exactly what you need. Create a public service request and receive interest from qualified caregivers ready to help.",
     },
@@ -217,6 +226,13 @@ function Home() {
       <AuthGuardDialog
         isOpen={isAuthGuardOpen}
         onClose={() => setIsAuthGuardOpen(false)}
+      />
+
+      {/* First-time Guest Role Selection Dialog Modal */}
+      <GuestRoleDialog
+        isOpen={isGuestRoleOpen}
+        onClose={() => setIsGuestRoleOpen(false)}
+        onSelectRole={(role: UserRole) => setIsCaregiver(role === 'giver')}
       />
 
     </div>
