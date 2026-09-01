@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 // Define route matching
 const protectedRoutes = ['/create-job', '/care-request'];
 const authRoutes = ['/login', '/register', '/welcome'];
-const giverOnlyRoutes = ['/freelance-jobs', '/find-jobs'];
+const giverOnlyRoutes: string[] = [];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
