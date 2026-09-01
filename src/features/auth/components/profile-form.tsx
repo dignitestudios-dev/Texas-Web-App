@@ -15,6 +15,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { saveToken, saveRole } from '@/lib/cookies';
+import { TEXAS_CITIES } from '@/lib/constants';
 import { toast } from 'sonner';
 
 const seekerProfileSchema = z.object({
@@ -26,30 +27,6 @@ const seekerProfileSchema = z.object({
 });
 
 type SeekerProfileFormValues = z.infer<typeof seekerProfileSchema>;
-
-const TEXAS_CITIES = [
-  'Austin',
-  'Houston',
-  'Dallas',
-  'San Antonio',
-  'Fort Worth',
-  'El Paso',
-  'Arlington',
-  'Corpus Christi',
-  'Plano',
-  'Laredo',
-  'Lubbock',
-  'Garland',
-  'Irving',
-  'Amarillo',
-  'Grand Prairie',
-  'Brownsville',
-  'McKinney',
-  'Frisco',
-  'Pasadena',
-  'Killeen',
-  'McAllen',
-];
 
 export const ProfileForm = () => {
   const router = useRouter();

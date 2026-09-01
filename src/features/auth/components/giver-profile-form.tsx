@@ -19,6 +19,7 @@ import {
   Square,
 } from 'lucide-react';
 import { saveToken } from '@/lib/cookies';
+import { TEXAS_CITIES } from '@/lib/constants';
 import {
   Select,
   SelectContent,
@@ -531,13 +532,12 @@ export const GiverProfileForm = () => {
                         >
                           <SelectValue placeholder="City" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                          <SelectItem value="San Juan">San Juan</SelectItem>
-                          <SelectItem value="Dallas">Dallas</SelectItem>
-                          <SelectItem value="Houston">Houston</SelectItem>
-                          <SelectItem value="Austin">Austin</SelectItem>
-                          <SelectItem value="San Antonio">San Antonio</SelectItem>
-                          <SelectItem value="Fort Worth">Fort Worth</SelectItem>
+                        <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg max-h-[220px] overflow-y-auto z-40">
+                          {TEXAS_CITIES.map((city) => (
+                            <SelectItem key={city} value={city} className="font-rubik text-[14px]">
+                              {city}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     )}
