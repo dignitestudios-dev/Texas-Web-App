@@ -696,17 +696,20 @@ export const GiverProfileForm = () => {
               <div className="flex flex-col gap-4 w-full">
                 {educationFields.map((edu, idx) => {
                   const isLast = idx === educationFields.length - 1;
+                  const eduErrors = errors.educations?.[idx];
                   return (
                     <div key={edu.id} className="flex flex-col gap-3 w-full">
                       {/* Level Row */}
-                      <div className="flex items-center gap-2.5 w-full">
-                        <div className="flex-1">
+                      <div className="flex items-start gap-2.5 w-full">
+                        <div className="flex-1 flex flex-col gap-1">
                           <Controller
                             control={control}
                             name={`educations.${idx}.level`}
                             render={({ field }) => (
                               <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="w-full h-[48px]! bg-white rounded-[12px] px-4 font-rubik text-[14px] text-[#121111] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]">
+                                <SelectTrigger className={`w-full h-[48px]! bg-white rounded-[12px] px-4 font-rubik text-[14px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
+                                  eduErrors?.level ? 'border-red-500' : 'border-[#EFEFEF]'
+                                }`}>
                                   <SelectValue placeholder="Education Level" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
@@ -719,6 +722,7 @@ export const GiverProfileForm = () => {
                               </Select>
                             )}
                           />
+                          {eduErrors?.level && <span className="text-red-500 text-xs">{eduErrors.level.message}</span>}
                         </div>
 
                         {/* Remove button */}
@@ -727,7 +731,7 @@ export const GiverProfileForm = () => {
                           onClick={() => {
                             if (educationFields.length > 1) removeEducation(idx);
                           }}
-                          className="w-[48px] h-[48px] bg-[#FFF5F5] border border-[#FCE8E6] text-[#C5221F] rounded-[12px] flex items-center justify-center shrink-0 hover:bg-red-100 transition cursor-pointer"
+                          className="w-[48px] h-[48px] bg-[#FFF5F5] border border-[#FCE8E6] text-[#C5221F] rounded-[12px] flex items-center justify-center shrink-0 hover:bg-red-100 transition cursor-pointer mt-0"
                         >
                           <X className="w-5 h-5" />
                         </button>
@@ -745,7 +749,7 @@ export const GiverProfileForm = () => {
                                 to: '',
                               })
                             }
-                            className="w-[48px] h-[48px] bg-[#F4FBF7] border border-[#E6F4EA] text-[#137333] rounded-[12px] flex items-center justify-center shrink-0 hover:bg-emerald-100 transition cursor-pointer"
+                            className="w-[48px] h-[48px] bg-[#F4FBF7] border border-[#E6F4EA] text-[#137333] rounded-[12px] flex items-center justify-center shrink-0 hover:bg-emerald-100 transition cursor-pointer mt-0"
                           >
                             <Plus className="w-5 h-5" />
                           </button>
@@ -754,53 +758,70 @@ export const GiverProfileForm = () => {
 
                       {/* Institute & Dates Row */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
-                        <input
-                          type="text"
-                          placeholder="Institute Or University"
-                          {...register(`educations.${idx}.institute`)}
-                          className="h-[48px] bg-white rounded-[12px] px-4 font-rubik text-[14px] text-[#121111] placeholder-[#727272] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]"
-                        />
+                        <div className="flex flex-col gap-1">
+                          <input
+                            type="text"
+                            placeholder="Institute Or University"
+                            {...register(`educations.${idx}.institute`)}
+                            className={`h-[48px] bg-white rounded-[12px] px-4 font-rubik text-[14px] text-[#121111] placeholder-[#727272] border shadow-xs outline-none focus:border-[#F36922] ${
+                              eduErrors?.institute ? 'border-red-500' : 'border-[#EFEFEF]'
+                            }`}
+                          />
+                          {eduErrors?.institute && <span className="text-red-500 text-xs">{eduErrors.institute.message}</span>}
+                        </div>
 
                         <div className="grid grid-cols-2 gap-2">
-                          <Controller
-                            control={control}
-                            name={`educations.${idx}.from`}
-                            render={({ field }) => (
-                              <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[14px] text-[#121111] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]">
-                                  <SelectValue placeholder="From" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                  {['2018', '2019', '2020', '2021', '2022', '2023', '2024'].map((y) => (
-                                    <SelectItem key={y} value={y}>{y}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <div className="flex flex-col gap-1">
+                            <Controller
+                              control={control}
+                              name={`educations.${idx}.from`}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                  <SelectTrigger className={`w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[14px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
+                                    eduErrors?.from ? 'border-red-500' : 'border-[#EFEFEF]'
+                                  }`}>
+                                    <SelectValue placeholder="From" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
+                                    {['2018', '2019', '2020', '2021', '2022', '2023', '2024'].map((y) => (
+                                      <SelectItem key={y} value={y}>{y}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                            {eduErrors?.from && <span className="text-red-500 text-xs">{eduErrors.from.message}</span>}
+                          </div>
 
-                          <Controller
-                            control={control}
-                            name={`educations.${idx}.to`}
-                            render={({ field }) => (
-                              <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[14px] text-[#121111] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]">
-                                  <SelectValue placeholder="To" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                  {['2019', '2020', '2021', '2022', '2023', '2024', 'Present'].map((y) => (
-                                    <SelectItem key={y} value={y}>{y}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <div className="flex flex-col gap-1">
+                            <Controller
+                              control={control}
+                              name={`educations.${idx}.to`}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                  <SelectTrigger className={`w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[14px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
+                                    eduErrors?.to ? 'border-red-500' : 'border-[#EFEFEF]'
+                                  }`}>
+                                    <SelectValue placeholder="To" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
+                                    {['2019', '2020', '2021', '2022', '2023', '2024', 'Present'].map((y) => (
+                                      <SelectItem key={y} value={y}>{y}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                            {eduErrors?.to && <span className="text-red-500 text-xs">{eduErrors.to.message}</span>}
+                          </div>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
+              {errors.educations?.root && <span className="text-red-500 text-xs mt-1">{errors.educations.root.message}</span>}
+              {errors.educations?.message && <span className="text-red-500 text-xs mt-1">{errors.educations.message}</span>}
             </div>
 
             {/* Section 3: Certification (Shadcn Select & Doc Uploads) */}
@@ -813,67 +834,83 @@ export const GiverProfileForm = () => {
                 {certFields.map((cert, idx) => {
                   const isLast = idx === certFields.length - 1;
                   const currentFileName = watch(`certifications.${idx}.fileName`);
+                  const certErrors = errors.certifications?.[idx];
 
                   return (
                     <div key={cert.id} className="flex flex-col gap-3 w-full">
                       {/* Top Selects Row */}
-                      <div className="flex items-center gap-2 w-full">
+                      <div className="flex items-start gap-2 w-full">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
                           {/* Certification Types */}
-                          <Controller
-                            control={control}
-                            name={`certifications.${idx}.type`}
-                            render={({ field }) => (
-                              <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[13px] text-[#121111] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]">
-                                  <SelectValue placeholder="Certification Types" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                  <SelectItem value="CPR Certified">CPR Certified</SelectItem>
-                                  <SelectItem value="First Aid">First Aid</SelectItem>
-                                  <SelectItem value="Licensed Professional">Licensed Professional</SelectItem>
-                                  <SelectItem value="Specialized Training">Specialized Training</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <div className="flex flex-col gap-1">
+                            <Controller
+                              control={control}
+                              name={`certifications.${idx}.type`}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                  <SelectTrigger className={`w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[13px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
+                                    certErrors?.type ? 'border-red-500' : 'border-[#EFEFEF]'
+                                  }`}>
+                                    <SelectValue placeholder="Certification Types" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
+                                    <SelectItem value="CPR Certified">CPR Certified</SelectItem>
+                                    <SelectItem value="First Aid">First Aid</SelectItem>
+                                    <SelectItem value="Licensed Professional">Licensed Professional</SelectItem>
+                                    <SelectItem value="Specialized Training">Specialized Training</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                            {certErrors?.type && <span className="text-red-500 text-xs">{certErrors.type.message}</span>}
+                          </div>
 
                           {/* Institution Name */}
-                          <Controller
-                            control={control}
-                            name={`certifications.${idx}.institution`}
-                            render={({ field }) => (
-                              <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[13px] text-[#121111] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]">
-                                  <SelectValue placeholder="Institution Name" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                  <SelectItem value="Red Cross">Red Cross</SelectItem>
-                                  <SelectItem value="American Heart Assoc">American Heart Assoc</SelectItem>
-                                  <SelectItem value="Texas Health Board">Texas Health Board</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <div className="flex flex-col gap-1">
+                            <Controller
+                              control={control}
+                              name={`certifications.${idx}.institution`}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                  <SelectTrigger className={`w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[13px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
+                                    certErrors?.institution ? 'border-red-500' : 'border-[#EFEFEF]'
+                                  }`}>
+                                    <SelectValue placeholder="Institution Name" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
+                                    <SelectItem value="Red Cross">Red Cross</SelectItem>
+                                    <SelectItem value="American Heart Assoc">American Heart Assoc</SelectItem>
+                                    <SelectItem value="Texas Health Board">Texas Health Board</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                            {certErrors?.institution && <span className="text-red-500 text-xs">{certErrors.institution.message}</span>}
+                          </div>
 
                           {/* Date of Completion */}
-                          <Controller
-                            control={control}
-                            name={`certifications.${idx}.date`}
-                            render={({ field }) => (
-                              <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[13px] text-[#121111] border border-[#EFEFEF] shadow-xs outline-none focus:border-[#F36922]">
-                                  <SelectValue placeholder="Date Of Completion" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
-                                  <SelectItem value="2022">2022</SelectItem>
-                                  <SelectItem value="2023">2023</SelectItem>
-                                  <SelectItem value="2024">2024</SelectItem>
-                                  <SelectItem value="2025">2025</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <div className="flex flex-col gap-1">
+                            <Controller
+                              control={control}
+                              name={`certifications.${idx}.date`}
+                              render={({ field }) => (
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                  <SelectTrigger className={`w-full h-[48px]! bg-white rounded-[12px] px-3 font-rubik text-[13px] text-[#121111] border shadow-xs outline-none focus:border-[#F36922] ${
+                                    certErrors?.date ? 'border-red-500' : 'border-[#EFEFEF]'
+                                  }`}>
+                                    <SelectValue placeholder="Date Of Completion" />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white rounded-[12px] border border-[#EFEFEF] shadow-lg">
+                                    <SelectItem value="2022">2022</SelectItem>
+                                    <SelectItem value="2023">2023</SelectItem>
+                                    <SelectItem value="2024">2024</SelectItem>
+                                    <SelectItem value="2025">2025</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                            />
+                            {certErrors?.date && <span className="text-red-500 text-xs">{certErrors.date.message}</span>}
+                          </div>
                         </div>
 
                         {/* Remove button */}
@@ -957,6 +994,8 @@ export const GiverProfileForm = () => {
                   );
                 })}
               </div>
+              {errors.certifications?.root && <span className="text-red-500 text-xs mt-1">{errors.certifications.root.message}</span>}
+              {errors.certifications?.message && <span className="text-red-500 text-xs mt-1">{errors.certifications.message}</span>}
             </div>
 
             {/* Action CTA */}
