@@ -687,7 +687,7 @@ export default function CareServicesPage() {
       <Dialog open={cancelModalStep > 0} onOpenChange={(open) => !open && setCancelModalStep(0)}>
         {/* Step 1: Cancel This Job? */}
         {cancelModalStep === 1 && (
-          <DialogContent className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
+          <DialogContent showCloseButton={false} className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
             {/* Red Door Exit Icon Matching Screenshot */}
             <div className="w-[56px] h-[50px] relative flex items-center justify-center mb-1">
               <svg width="56" height="50" viewBox="0 0 56 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -725,7 +725,7 @@ export default function CareServicesPage() {
 
         {/* Step 2: Cancellation Reason Textarea */}
         {cancelModalStep === 2 && (
-          <DialogContent className="sm:max-w-[440px] bg-[#FEF0E9] rounded-[28px] p-6 sm:p-7 border-none shadow-2xl flex flex-col text-left">
+          <DialogContent showCloseButton={false} className="sm:max-w-[440px] bg-[#FEF0E9] rounded-[28px] p-6 sm:p-7 border-none shadow-2xl flex flex-col text-left">
             <div className="flex items-center justify-between w-full pb-3">
               <DialogTitle className="font-rubik font-bold text-[22px] text-[#121111]">
                 Cancellation Reason
@@ -763,7 +763,7 @@ export default function CareServicesPage() {
 
         {/* Step 3: Job Cancel Confirmation */}
         {cancelModalStep === 3 && (
-          <DialogContent className="sm:max-w-[400px] bg-white rounded-[28px] p-8 border-none shadow-2xl flex flex-col items-center text-center">
+          <DialogContent showCloseButton={false} className="sm:max-w-[400px] bg-white rounded-[28px] p-8 border-none shadow-2xl flex flex-col items-center text-center">
             {/* Orange Square with White Checkmark */}
             <div className="w-[56px] h-[56px] rounded-[16px] bg-[#F36922] flex items-center justify-center mb-2 shadow-xs">
               <Check className="w-8 h-8 text-white stroke-[3.5]" />
@@ -791,7 +791,7 @@ export default function CareServicesPage() {
 
       {/* Mark Job As Done Modal (Pixel-Perfect Matching Screenshot) */}
       <Dialog open={isMarkDoneOpen} onOpenChange={setIsMarkDoneOpen}>
-        <DialogContent className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
+        <DialogContent showCloseButton={false} className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
           {/* Custom Orange Icon Matching Screenshot */}
           <div className="w-[56px] h-[50px] relative flex items-center justify-center mb-1">
             <svg width="56" height="50" viewBox="0 0 56 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -821,7 +821,8 @@ export default function CareServicesPage() {
               onClick={() => {
                 setOngoingStatus('Completed');
                 setIsMarkDoneOpen(false);
-                toast.success('Service marked as completed!');
+                toast.success('Service marked as completed! Redirecting to review...');
+                router.push('/review/1');
               }}
               className="flex-1 h-[52px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-semibold text-[16px] rounded-[16px] transition cursor-pointer border-none shadow-sm flex items-center justify-center"
             >

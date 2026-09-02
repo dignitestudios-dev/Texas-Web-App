@@ -19,7 +19,7 @@ interface MarkAsDoneModalProps {
 export function MarkAsDoneModal({ open, onOpenChange, onConfirm }: MarkAsDoneModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[380px] bg-white rounded-[24px] p-6 border-none shadow-2xl flex flex-col items-center text-center gap-3">
+      <DialogContent showCloseButton={false} className="sm:max-w-[380px] bg-white rounded-[24px] p-6 border-none shadow-2xl flex flex-col items-center text-center gap-3">
         {/* Orange Exit Icon */}
         <div className="w-14 h-14 rounded-2xl bg-[#F36922] flex items-center justify-center text-white shadow-sm mb-1">
           <LogOut className="w-7 h-7 text-white" />
@@ -85,7 +85,7 @@ export function CancelJobModal({ open, onOpenChange, onSuccessClose }: CancelJob
     <Dialog open={open} onOpenChange={(val) => { if (!val) handleClose(); }}>
       {/* ── STEP 1: Cancel This Job? ── */}
       {step === 1 && (
-        <DialogContent className="sm:max-w-[380px] bg-white rounded-[24px] p-6 border-none shadow-2xl flex flex-col items-center text-center gap-3">
+        <DialogContent showCloseButton={false} className="sm:max-w-[380px] bg-white rounded-[24px] p-6 border-none shadow-2xl flex flex-col items-center text-center gap-3">
           <div className="w-14 h-14 rounded-2xl bg-[#D32F2F] flex items-center justify-center text-white shadow-sm mb-1">
             <LogOut className="w-7 h-7 text-white" />
           </div>
@@ -118,7 +118,7 @@ export function CancelJobModal({ open, onOpenChange, onSuccessClose }: CancelJob
 
       {/* ── STEP 2: Cancellation Reason ── */}
       {step === 2 && (
-        <DialogContent className="sm:max-w-[440px] bg-[#FFF4ED] rounded-[24px] p-6 border-none shadow-2xl flex flex-col gap-4">
+        <DialogContent showCloseButton={false} className="sm:max-w-[440px] bg-[#FFF4ED] rounded-[24px] p-6 border-none shadow-2xl flex flex-col gap-4">
           <div className="flex justify-between items-center w-full">
             <DialogTitle className="font-rubik font-semibold text-[20px] text-[#121111]">
               Cancellation Reason
@@ -152,7 +152,7 @@ export function CancelJobModal({ open, onOpenChange, onSuccessClose }: CancelJob
 
       {/* ── STEP 3: Job Cancel Success ── */}
       {step === 3 && (
-        <DialogContent className="sm:max-w-[380px] bg-white rounded-[24px] p-6 border-none shadow-2xl flex flex-col items-center text-center gap-3">
+        <DialogContent showCloseButton={false} className="sm:max-w-[380px] bg-white rounded-[24px] p-6 border-none shadow-2xl flex flex-col items-center text-center gap-3">
           <div className="w-14 h-14 rounded-2xl bg-[#F36922] flex items-center justify-center text-white shadow-sm mb-1">
             <Check className="w-8 h-8 stroke-[3] text-white" />
           </div>

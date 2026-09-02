@@ -19,6 +19,7 @@ type HistorySubTab = 'completed' | 'cancelled';
 interface HistoryTabProps {
   historySubTab: HistorySubTab;
   onSubTabChange: (tab: HistorySubTab) => void;
+  showCalendarButton?: boolean;
 }
 
 const CANCELLED_JOBS = [
@@ -63,28 +64,34 @@ const CANCELLED_JOBS = [
   },
 ];
 
-export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
+export function HistoryTab({
+  historySubTab,
+  onSubTabChange,
+  showCalendarButton = false,
+}: HistoryTabProps) {
   const router = useRouter();
 
   return (
     <div className="w-full h-full overflow-y-auto pr-1 pb-10 scrollbar-thin select-none">
       <div className="flex flex-col gap-6 w-full max-w-[1280px] mx-auto text-left">
-        
-        {/* Info Banner Row with View Your Calendar Button */}
+
+        {/* Info Banner Row */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
           <div className="flex items-center gap-2 text-[#121111] font-rubik font-medium text-[14px] sm:text-[15px] leading-[20px]">
             <Info className="w-4 h-4 text-[#121111] shrink-0" />
             <span>View your completed and past care requests.</span>
           </div>
 
-          <button
-            type="button"
-            onClick={() => router.push('/calendar')}
-            className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[10px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-sm shrink-0"
-          >
-            <span>View Your Calendar</span>
-            <CalendarIcon className="w-4 h-4 text-white" />
-          </button>
+          {showCalendarButton && (
+            <button
+              type="button"
+              onClick={() => router.push('/my-jobs/calendar')}
+              className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[10px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-sm shrink-0"
+            >
+              <span>View Your Calendar</span>
+              <CalendarIcon className="w-4 h-4 text-white" />
+            </button>
+          )}
         </div>
 
         {/* Subtab Segmented Control (Matching Provided Image Pixel-Perfect) */}
@@ -92,22 +99,20 @@ export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
           <button
             type="button"
             onClick={() => onSubTabChange('completed')}
-            className={`flex-1 h-full flex items-center justify-center font-rubik text-[16px] transition cursor-pointer border-none ${
-              historySubTab === 'completed'
-                ? 'bg-[#050854] text-white font-bold'
-                : 'bg-white text-[#121111] font-normal hover:bg-neutral-50'
-            }`}
+            className={`flex-1 h-full flex items-center justify-center font-rubik text-[16px] transition cursor-pointer border-none ${historySubTab === 'completed'
+              ? 'bg-[#050854] text-white font-bold'
+              : 'bg-white text-[#121111] font-normal hover:bg-neutral-50'
+              }`}
           >
             Completed
           </button>
           <button
             type="button"
             onClick={() => onSubTabChange('cancelled')}
-            className={`flex-1 h-full flex items-center justify-center font-rubik text-[16px] transition cursor-pointer border-none ${
-              historySubTab === 'cancelled'
-                ? 'bg-[#050854] text-white font-bold'
-                : 'bg-white text-[#121111] font-normal hover:bg-neutral-50'
-            }`}
+            className={`flex-1 h-full flex items-center justify-center font-rubik text-[16px] transition cursor-pointer border-none ${historySubTab === 'cancelled'
+              ? 'bg-[#050854] text-white font-bold'
+              : 'bg-white text-[#121111] font-normal hover:bg-neutral-50'
+              }`}
           >
             Cancelled
           </button>
@@ -116,9 +121,9 @@ export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
         {/* Subtab Views */}
         {historySubTab === 'completed' ? (
           <div className="flex flex-col gap-6 w-full">
-            
+
             {/* ── CARD 1: Instant Job with Existing Review ── */}
-            <div className="w-full bg-white rounded-[24px] shadow-[0_2px_15px_rgba(0,0,0,0.06)] border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left">
+            <div className="w-full bg-white rounded-[20px]  border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left">
               {/* Header: Caregiver + Badges */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full border-b border-[#F0F0F0] pb-4">
                 <div className="flex items-center gap-3.5">
@@ -195,7 +200,7 @@ export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push('/freelance-jobs/1')}
+                  onClick={() => router.push('/my-jobs/history/1')}
                   className="h-[42px] px-6 bg-[#0A0A6E] hover:bg-[#06064B] text-white font-rubik font-medium text-[14px] rounded-full transition cursor-pointer border-none shadow-xs flex items-center gap-2"
                 >
                   <span>View Details</span>
@@ -211,9 +216,8 @@ export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-4 h-4 ${
-                          star <= 4 ? 'fill-[#FFC107] text-[#FFC107]' : 'text-neutral-300'
-                        }`}
+                        className={`w-4 h-4 ${star <= 4 ? 'fill-[#FFC107] text-[#FFC107]' : 'text-neutral-300'
+                          }`}
                       />
                     ))}
                   </div>
@@ -335,7 +339,7 @@ export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
 
                 <button
                   type="button"
-                  onClick={() => router.push('/freelance-jobs/1')}
+                  onClick={() => router.push('/my-jobs/history/1')}
                   className="h-[42px] px-6 bg-[#0A0A6E] hover:bg-[#06064B] text-white font-rubik font-medium text-[14px] rounded-full transition cursor-pointer border-none shadow-xs flex items-center gap-2"
                 >
                   <span>View Details</span>
@@ -352,7 +356,7 @@ export function HistoryTab({ historySubTab, onSubTabChange }: HistoryTabProps) {
             {CANCELLED_JOBS.map((job) => (
               <div
                 key={job.id}
-                className="w-full bg-white rounded-[24px] shadow-[0_2px_15px_rgba(0,0,0,0.06)] border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-3 text-left"
+                className="w-full bg-white rounded-[20px]  border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-3 text-left"
               >
                 {/* Title & Cancelled Badge */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">

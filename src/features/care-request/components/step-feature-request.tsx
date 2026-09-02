@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CareRequestFormData } from '../types/care-request.types';
+import { PaymentCheckoutDialog } from '@/components/common/payment-checkout-dialog';
 
 interface StepFeatureRequestProps {
   data: CareRequestFormData;
@@ -27,16 +28,28 @@ export function StepFeatureRequest({
   onBack,
 }: StepFeatureRequestProps) {
   const router = useRouter();
+  const [selectedPlan, setSelectedPlan] = useState<'1-day' | '7-days' | '30-days'>(
+    data.selectedPlan || '7-days'
+  );
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
-  const handleFinish = (plan?: '1-day' | '7-days' | '30-days') => {
-    if (plan) {
-      onChange({ selectedPlan: plan });
-      toast.success(`Care request published with ${plan === '7-days' ? '7 Days Featured' : plan === '30-days' ? '30 Days Featured' : '1 Day Featured'} boost!`);
-    } else {
-      toast.success('Care request published successfully!');
-    }
+  const handlePlanClick = (plan: '1-day' | '7-days' | '30-days') => {
+    setSelectedPlan(plan);
+    setIsPaymentOpen(true);
+  };
+
+  const handleSkip = () => {
+    toast.success('Care request published successfully!');
     router.push('/my-jobs');
   };
+
+  const planAmount = selectedPlan === '30-days' ? 25 : selectedPlan === '1-day' ? 2 : 9;
+  const planLabel =
+    selectedPlan === '30-days'
+      ? '30 Days Featured Plan ($25/mo)'
+      : selectedPlan === '1-day'
+      ? '1 Day Featured Plan ($2/day)'
+      : '7 Days Featured Plan ($9/week)';
 
   return (
     <div className="w-full flex flex-col bg-white min-h-screen">
@@ -64,7 +77,7 @@ export function StepFeatureRequest({
           <div className="w-[46px] shrink-0" />
         </div>
 
-        {/* ── Card Preview (Matching Screenshot 3) ── */}
+        {/* ── Card Preview ── */}
         <div className="w-full bg-white rounded-[24px] shadow-[0_2px_15px_rgba(0,0,0,0.06)] border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-3 text-left">
           {/* Title & Budget */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">
@@ -164,16 +177,25 @@ export function StepFeatureRequest({
 
         {/* ── Choose a Plan Section ── */}
         <div className="flex flex-col gap-4 w-full pt-1">
-          <h3 className="font-rubik font-bold text-[18px] text-[#121111]">
-            Choose a Plan
-          </h3>
+          <div className="flex items-center justify-between w-full">
+            <h3 className="font-rubik font-bold text-[18px] text-[#121111]">
+              Choose a Plan
+            </h3>
+            <span className="font-rubik text-[13px] text-[#565656]">
+              Click any plan or Feature Post below
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full items-stretch">
             
             {/* PLAN 1: 1 Day */}
             <div
-              onClick={() => handleFinish('1-day')}
-              className="bg-white rounded-[20px] p-6 border border-neutral-200 hover:border-[#F36922] transition cursor-pointer flex flex-col items-center text-center gap-3 shadow-xs hover:shadow-md"
+              onClick={() => handlePlanClick('1-day')}
+              className={`bg-white rounded-[20px] p-6 border transition cursor-pointer flex flex-col items-center text-center gap-3 shadow-xs hover:shadow-md ${
+                selectedPlan === '1-day'
+                  ? 'border-[#0A0A6E] ring-2 ring-[#0A0A6E]/30 bg-[#F8F9FF]'
+                  : 'border-neutral-200 hover:border-[#F36922]'
+              }`}
             >
               <span className="font-rubik font-medium text-[14px] text-[#121111]">1 Day</span>
               <span className="font-rubik font-bold text-[26px] text-[#121111]">$2/day</span>
@@ -196,8 +218,12 @@ export function StepFeatureRequest({
 
             {/* PLAN 2: 7 Days (Most Popular) */}
             <div
-              onClick={() => handleFinish('7-days')}
-              className="bg-gradient-to-b from-[#EA580C] to-[#2E1065] text-white rounded-[20px] p-6 relative flex flex-col items-center text-center gap-3 shadow-xl cursor-pointer hover:scale-[1.02] transition"
+              onClick={() => handlePlanClick('7-days')}
+              className={`bg-gradient-to-b from-[#EA580C] to-[#2E1065] text-white rounded-[20px] p-6 relative flex flex-col items-center text-center gap-3 shadow-xl cursor-pointer hover:scale-[1.02] transition ${
+                selectedPlan === '7-days'
+                  ? 'ring-4 ring-[#F36922]/50 scale-[1.02]'
+                  : ''
+              }`}
             >
               {/* Most Popular Badge */}
               <div className="absolute -top-3.5 bg-[#EA580C] text-white text-[12px] font-bold px-3.5 py-1 rounded-full shadow-md flex items-center gap-1">
@@ -230,8 +256,12 @@ export function StepFeatureRequest({
 
             {/* PLAN 3: 30 Days */}
             <div
-              onClick={() => handleFinish('30-days')}
-              className="bg-white rounded-[20px] p-6 border border-neutral-200 hover:border-[#F36922] transition cursor-pointer flex flex-col items-center text-center gap-3 shadow-xs hover:shadow-md"
+              onClick={() => handlePlanClick('30-days')}
+              className={`bg-white rounded-[20px] p-6 border transition cursor-pointer flex flex-col items-center text-center gap-3 shadow-xs hover:shadow-md ${
+                selectedPlan === '30-days'
+                  ? 'border-[#0A0A6E] ring-2 ring-[#0A0A6E]/30 bg-[#F8F9FF]'
+                  : 'border-neutral-200 hover:border-[#F36922]'
+              }`}
             >
               <span className="font-rubik font-medium text-[14px] text-[#121111]">30 Days</span>
               <span className="font-rubik font-bold text-[26px] text-[#121111]">$25/mo</span>
@@ -259,18 +289,43 @@ export function StepFeatureRequest({
           </div>
         </div>
 
-        {/* ── Skip Button ── */}
-        <div className="flex justify-center w-full pt-1 pb-4">
+        {/* ── Feature Post & Skip Buttons ── */}
+        <div className="flex flex-col items-center gap-3.5 w-full pt-4 pb-6">
           <button
             type="button"
-            onClick={() => handleFinish()}
-            className="font-rubik font-semibold text-[15px] text-[#121111] hover:text-[#F36922] transition cursor-pointer border-none bg-transparent"
+            onClick={() => setIsPaymentOpen(true)}
+            className="w-full max-w-[420px] h-[52px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-semibold text-[16px] rounded-[16px] transition cursor-pointer border-none shadow-md flex items-center justify-center gap-2 hover:scale-[1.01]"
           >
-            Skip
+            <Sparkles className="w-5 h-5 text-white" />
+            <span>Feature Post (${planAmount}.00)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="font-rubik font-semibold text-[15px] text-[#565656] hover:text-[#121111] transition cursor-pointer border-none bg-transparent"
+          >
+            Skip and Post Without Feature
           </button>
         </div>
 
       </div>
+
+      {/* ── Payment Checkout Dialog ── */}
+      <PaymentCheckoutDialog
+        isOpen={isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
+        title="Feature Your Care Request"
+        subtitle="Boost visibility and find the right caregiver faster"
+        planName={planLabel}
+        amount={planAmount}
+        onSuccessRedirect={() => {
+          setIsPaymentOpen(false);
+          onChange({ selectedPlan });
+          toast.success(`Care request published with ${planLabel} boost!`);
+          router.push('/my-jobs');
+        }}
+      />
     </div>
   );
 }

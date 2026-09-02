@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { MyJobsPage } from '@/features/care-services';
 import { GiverMyJobsPage } from '@/features/giver-jobs';
 import { getRole, UserRole } from '@/lib/cookies';
@@ -17,9 +17,9 @@ export default function Page() {
     return () => window.removeEventListener('roleChange', updateRoleState);
   }, []);
 
-  if (role === 'giver') {
-    return <GiverMyJobsPage />;
-  }
-
-  return <MyJobsPage />;
+  return (
+    <Suspense fallback={<div className="h-[calc(100vh-0px)] bg-[#FFF6F0]/20 flex items-center justify-center font-rubik text-[#565656]">Loading...</div>}>
+      {role === 'giver' ? <GiverMyJobsPage /> : <MyJobsPage />}
+    </Suspense>
+  );
 }
