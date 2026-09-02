@@ -66,7 +66,7 @@ const Navbar = () => {
                        <div className="flex items-center gap-3 bg-white rounded-full px-4 py-1 border border-[#E4E4E7] shadow-xs select-none">
                     <span className="font-rubik font-medium text-[13px] sm:text-[14px] text-[#121111] whitespace-nowrap">
                         {loggedIn
-                            ? (currentRole === 'giver' ? 'View to Care Seeker' : 'View to Caregiver')
+                            ? (currentRole === 'giver' ? 'View as Care Seeker' : 'View as Caregiver')
                             : (currentRole === 'giver' ? 'View as Care Seeker' : 'View as Care Giver')
                         }
                     </span>

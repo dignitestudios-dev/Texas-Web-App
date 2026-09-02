@@ -98,7 +98,7 @@ export function ApplicantsTab() {
           {APPLICANTS_JOBS.map((job) => (
             <div
               key={job.id}
-              className="w-full bg-white rounded-[24px] shadow-[0_2px_15px_rgba(0,0,0,0.06)] border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left"
+              className="w-full bg-white rounded-[20px]  border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left"
             >
               {/* Title & Budget */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">

@@ -108,7 +108,7 @@ export default function CaregiverProfileDetails({ caregiver }: CaregiverProfileD
                 {services.map((svc, idx) => (
                   <div
                     key={idx}
-                    className="bg-white border-b border-[#EFEFEF]/86 p-[15px] rounded-xl shadow-[2px_2px_50px_rgba(0,0,0,0.1)] flex flex-col gap-[12px] w-full"
+                    className="bg-white border-b border-[#EFEFEF]/86 p-[15px] rounded-xl  flex flex-col gap-[12px] w-full"
                   >
                     {/* Row 1 (Image + Details) */}
                     <div className="flex flex-row items-center gap-[15px] w-full">

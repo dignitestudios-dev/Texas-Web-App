@@ -302,7 +302,7 @@ export function ApplicantDetailsPage({ applicationId }: ApplicantDetailsPageProp
               </div>
 
               {/* Assign Job Button */}
-              <div className="pt-2">
+              <div className="pt-2 flex gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedCaregiver(applicant.name)}
@@ -310,6 +310,13 @@ export function ApplicantDetailsPage({ applicationId }: ApplicantDetailsPageProp
                 >
                   Assign Job
                 </button>
+                <Link href={`/leaderboard/${applicant.id}`}
+                  type="button"
+                  // onClick={() => setSelectedCaregiver(applicant.name)}
+                  className="h-[48px] py-4 px-8 bg-[#F36922] hover:bg-[#e05813] text-white rounded-[4px] font-poppins font-medium text-[13px] cursor-pointer transition border-none shadow-sm"
+                >
+                  View Profile
+                </Link>
               </div>
             </div>
           ))}

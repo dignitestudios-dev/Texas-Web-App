@@ -75,7 +75,7 @@ export function ViewedTab() {
   return (
     <div className="w-full h-full overflow-y-auto pr-1 pb-10 scrollbar-thin select-none">
       <div className="flex flex-col gap-6 w-full max-w-[1280px] mx-auto text-left">
-        
+
         {/* Info Banner Row with View Your Calendar Button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
           <div className="flex items-center gap-2 text-[#121111] font-rubik font-medium text-[14px] sm:text-[15px] leading-[20px]">
@@ -98,7 +98,7 @@ export function ViewedTab() {
           {VIEWED_JOBS.map((job) => (
             <div
               key={job.id}
-              className="w-full bg-white rounded-[24px] shadow-[0_2px_15px_rgba(0,0,0,0.06)] border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left"
+              className="w-full bg-white rounded-[20px]  border border-[#EFEFEF] p-6 sm:p-7 flex flex-col gap-4 text-left"
             >
               {/* Title & Budget */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">
@@ -171,7 +171,7 @@ export function ViewedTab() {
 
                 <button
                   type="button"
-                  onClick={() => router.push(`/leaderboard/${job.caregiverId}`)}
+                  onClick={() => router.push('/my-jobs/1')}
                   className="h-[42px] px-6 bg-[#0A0A6E] hover:bg-[#06064B] text-white font-rubik font-medium text-[14px] rounded-full transition cursor-pointer border-none shadow-xs flex items-center gap-2"
                 >
                   <span>View Details</span>

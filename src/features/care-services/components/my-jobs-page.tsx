@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   ChevronRight,
@@ -22,20 +22,82 @@ import {
 import { toast } from 'sonner';
 import { ApplicantsTab } from './applicants-tab';
 import { ViewedTab } from './viewed-tab';
-import { ActiveTab } from './active-tab';
+import { MyJobsActiveTab } from './my-jobs-active-tab';
 import { HistoryTab } from './history-tab';
+
+export type MyJobsTab = 'active' | 'applicants' | 'viewed' | 'history';
+export type ActiveSubTab = 'ongoing' | 'upcoming';
+export type HistorySubTab = 'completed' | 'cancelled';
 
 export default function MyJobsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'active' | 'applicants' | 'viewed' | 'history'>('active');
+  const searchParams = useSearchParams();
 
   // Cancel Modal Flow (3-Step Flow)
   const [cancelModalStep, setCancelModalStep] = useState<number>(0);
   const [cancelReason, setCancelReason] = useState<string>('');
 
-  // Active Tab Sub-States
-  const [activeSubTab, setActiveSubTab] = useState<'ongoing' | 'upcoming'>('ongoing');
-  const [historySubTab, setHistorySubTab] = useState<'completed' | 'cancelled'>('completed');
+  // Primary tab from URL search params
+  const rawTab = searchParams.get('tab') as MyJobsTab | null;
+  const activeTab: MyJobsTab =
+    rawTab && ['active', 'applicants', 'viewed', 'history'].includes(rawTab)
+      ? rawTab
+      : 'active';
+
+  // Inner sub-tabs from URL search params
+  const rawSubTab = searchParams.get('subTab');
+
+  const activeSubTab: ActiveSubTab =
+    activeTab === 'active' && rawSubTab === 'upcoming' ? 'upcoming' : 'ongoing';
+
+  const historySubTab: HistorySubTab =
+    activeTab === 'history' && rawSubTab === 'cancelled' ? 'cancelled' : 'completed';
+
+  // Handle side tab changes and update URL
+  const handleTabChange = (newTab: MyJobsTab) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.set('tab', newTab);
+    if (newTab === 'active') {
+      params.set('subTab', activeSubTab);
+    } else if (newTab === 'history') {
+      params.set('subTab', historySubTab);
+    } else {
+      params.delete('subTab');
+    }
+    router.push(`/my-jobs?${params.toString()}`);
+  };
+
+  // Handle active inner subtab change
+  const handleActiveSubTabChange = (subTab: ActiveSubTab) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.set('tab', 'active');
+    params.set('subTab', subTab);
+    router.push(`/my-jobs?${params.toString()}`);
+  };
+
+  // Handle history inner subtab change
+  const handleHistorySubTabChange = (subTab: HistorySubTab) => {
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.set('tab', 'history');
+    params.set('subTab', subTab);
+    router.push(`/my-jobs?${params.toString()}`);
+  };
+
+  // Dynamic Breadcrumb Label
+  const getBreadcrumb = () => {
+    switch (activeTab) {
+      case 'active':
+        return activeSubTab === 'upcoming' ? 'Active Job - Upcoming' : 'Active Job - Ongoing';
+      case 'applicants':
+        return 'Applicants';
+      case 'viewed':
+        return 'Viewed';
+      case 'history':
+        return historySubTab === 'cancelled' ? 'History - Cancelled' : 'History - Completed';
+      default:
+        return 'My Jobs';
+    }
+  };
 
   return (
     <div className="h-[calc(100vh-0px)] bg-[#FFF6F0]/20 flex flex-col relative w-full overflow-hidden">
@@ -61,7 +123,7 @@ export default function MyJobsPage() {
                 <Link href="/" className="hover:text-[#F36922] transition">Home</Link>
                 <ChevronRight className="w-5 h-5 text-[#3D3D3D]" />
                 <span className="font-normal text-[#3D3D3D]">
-                  {activeTab === 'applicants' ? 'Applicants' : activeTab === 'active' && activeSubTab === 'upcoming' ? 'Active Job' : 'My Jobs'}
+                  {getBreadcrumb()}
                 </span>
               </div>
             </div>
@@ -84,12 +146,11 @@ export default function MyJobsPage() {
           <div className="w-full md:w-[160px] flex flex-row md:flex-col items-start gap-[18px] shrink-0 p-0 mb-6 md:mb-0">
             {/* Active Button */}
             <button
-              onClick={() => setActiveTab('active')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
-                activeTab === 'active'
+              onClick={() => handleTabChange('active')}
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'active'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-              }`}
+                }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <Check className="w-5 h-5 stroke-[3]" />
@@ -101,12 +162,11 @@ export default function MyJobsPage() {
 
             {/* Applicants Button */}
             <button
-              onClick={() => setActiveTab('applicants')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
-                activeTab === 'applicants'
+              onClick={() => handleTabChange('applicants')}
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'applicants'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-              }`}
+                }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <Users className="w-5 h-5" />
@@ -118,12 +178,11 @@ export default function MyJobsPage() {
 
             {/* Viewed Button */}
             <button
-              onClick={() => setActiveTab('viewed')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
-                activeTab === 'viewed'
+              onClick={() => handleTabChange('viewed')}
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'viewed'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-              }`}
+                }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <Eye className="w-5 h-5" />
@@ -135,12 +194,11 @@ export default function MyJobsPage() {
 
             {/* History Button */}
             <button
-              onClick={() => setActiveTab('history')}
-              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${
-                activeTab === 'history'
+              onClick={() => handleTabChange('history')}
+              className={`box-sizing-border-box flex flex-row items-center p-[6px_12px_6px_6px] gap-2 w-[140px] h-[56px] rounded-[32px] cursor-pointer border transition ${activeTab === 'history'
                   ? 'bg-[#0A0A6E] border-[#0A0A6E] text-white shadow-sm'
                   : 'bg-[#F8F9FF] border-transparent text-[#121111] hover:bg-[#eaecef]'
-              }`}
+                }`}
             >
               <div className="w-[44px] h-[44px] bg-[#F36922] rounded-full flex items-center justify-center shrink-0 text-white">
                 <History className="w-5 h-5" />
@@ -157,9 +215,9 @@ export default function MyJobsPage() {
           {/* Main Tab Content Area */}
           <div className="flex-1 h-full overflow-hidden bg-transparent">
             {activeTab === 'active' && (
-              <ActiveTab
+              <MyJobsActiveTab
                 activeSubTab={activeSubTab}
-                onSubTabChange={setActiveSubTab}
+                onSubTabChange={handleActiveSubTabChange}
                 onCancelOngoingClick={() => setCancelModalStep(1)}
               />
             )}
@@ -175,7 +233,8 @@ export default function MyJobsPage() {
             {activeTab === 'history' && (
               <HistoryTab
                 historySubTab={historySubTab}
-                onSubTabChange={setHistorySubTab}
+                onSubTabChange={handleHistorySubTabChange}
+                showCalendarButton={true}
               />
             )}
           </div>
@@ -188,7 +247,7 @@ export default function MyJobsPage() {
       <Dialog open={cancelModalStep > 0} onOpenChange={(open) => !open && setCancelModalStep(0)}>
         {/* Step 1: Cancel This Job? */}
         {cancelModalStep === 1 && (
-          <DialogContent className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
+          <DialogContent showCloseButton={false} className="sm:max-w-[390px] bg-white rounded-[28px] p-7 border-none shadow-2xl flex flex-col items-center text-center">
             {/* Red Door Exit Icon */}
             <div className="w-[56px] h-[50px] relative flex items-center justify-center mb-1">
               <svg width="56" height="50" viewBox="0 0 56 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -226,7 +285,7 @@ export default function MyJobsPage() {
 
         {/* Step 2: Cancellation Reason Textarea */}
         {cancelModalStep === 2 && (
-          <DialogContent className="sm:max-w-[440px] bg-[#FEF0E9] rounded-[28px] p-6 sm:p-7 border-none shadow-2xl flex flex-col text-left">
+          <DialogContent showCloseButton={false} className="sm:max-w-[440px] bg-[#FEF0E9] rounded-[28px] p-6 sm:p-7 border-none shadow-2xl flex flex-col text-left">
             <div className="flex items-center justify-between w-full pb-3">
               <DialogTitle className="font-rubik font-bold text-[22px] text-[#121111]">
                 Cancellation Reason
@@ -262,7 +321,7 @@ export default function MyJobsPage() {
 
         {/* Step 3: Job Cancel Confirmation */}
         {cancelModalStep === 3 && (
-          <DialogContent className="sm:max-w-[400px] bg-white rounded-[28px] p-8 border-none shadow-2xl flex flex-col items-center text-center">
+          <DialogContent showCloseButton={false} className="sm:max-w-[400px] bg-white rounded-[28px] p-8 border-none shadow-2xl flex flex-col items-center text-center">
             {/* Orange Square with White Checkmark */}
             <div className="w-[56px] h-[56px] rounded-[16px] bg-[#F36922] flex items-center justify-center mb-2 shadow-xs">
               <Check className="w-8 h-8 text-white stroke-[3.5]" />

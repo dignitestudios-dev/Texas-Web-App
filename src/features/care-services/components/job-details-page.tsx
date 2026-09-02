@@ -277,7 +277,7 @@ export function JobDetailsPage({ jobId }: JobDetailsPageProps) {
         onOpenChange={setIsMarkDoneOpen}
         onConfirm={() => {
           setIsMarkDoneOpen(false);
-          router.push('/review/john-doe');
+          router.push('/review/1');
         }}
       />
 
