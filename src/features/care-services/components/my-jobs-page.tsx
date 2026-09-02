@@ -128,13 +128,24 @@ export default function MyJobsPage() {
               </div>
             </div>
 
-            {/* Right Button: Post A Care Request */}
-            <Link
-              href="/care-request"
-              className="h-[48px] px-[20px] bg-[#0A0A6E] hover:bg-[#080856] text-white rounded-[8px] flex items-center justify-center font-rubik font-medium text-[14px] leading-[24px] capitalize cursor-pointer transition border-none shadow-sm"
-            >
-              Post A Care Request
-            </Link>
+            {/* Right Buttons: View Your Calendar & Post A Care Request */}
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => router.push('/my-jobs/calendar')}
+                className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[10px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-sm shrink-0"
+              >
+                <span>View Your Calendar</span>
+                <CalendarIcon className="w-4 h-4 text-white" />
+              </button>
+
+              <Link
+                href="/care-request"
+                className="h-[48px] px-[20px] bg-[#0A0A6E] hover:bg-[#080856] text-white rounded-[8px] flex items-center justify-center font-rubik font-medium text-[14px] leading-[24px] capitalize cursor-pointer transition border-none shadow-sm"
+              >
+                Post A Care Request
+              </Link>
+            </div>
           </div>
 
         </div>
@@ -234,7 +245,6 @@ export default function MyJobsPage() {
               <HistoryTab
                 historySubTab={historySubTab}
                 onSubTabChange={handleHistorySubTabChange}
-                showCalendarButton={true}
               />
             )}
           </div>

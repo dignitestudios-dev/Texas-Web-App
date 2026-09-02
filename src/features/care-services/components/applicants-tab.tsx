@@ -76,21 +76,10 @@ export function ApplicantsTab() {
     <div className="w-full h-full overflow-y-auto pr-1 pb-10 scrollbar-thin select-none">
       <div className="flex flex-col gap-6 w-full max-w-[1280px] mx-auto text-left">
         
-        {/* Info Banner Row with View Your Calendar Button */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
-          <div className="flex items-center gap-2 text-[#121111] font-rubik font-medium text-[14px] sm:text-[15px] leading-[20px]">
-            <Info className="w-4 h-4 text-[#121111] shrink-0" />
-            <span>See caregivers who have applied to your requests.</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => router.push('/calendar')}
-            className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[10px] bg-[#F36922] hover:bg-[#e05813] text-white font-rubik font-medium text-[14px] leading-[18px] transition cursor-pointer border-none shadow-sm shrink-0"
-          >
-            <span>View Your Calendar</span>
-            <CalendarIcon className="w-4 h-4 text-white" />
-          </button>
+        {/* Info Banner Row */}
+        <div className="flex items-center gap-2 text-[#121111] font-rubik font-medium text-[14px] sm:text-[15px] leading-[20px]">
+          <Info className="w-4 h-4 text-[#121111] shrink-0" />
+          <span>See caregivers who have applied to your requests.</span>
         </div>
 
         {/* List of Job Cards */}

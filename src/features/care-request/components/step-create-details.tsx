@@ -34,7 +34,7 @@ export function StepCreateDetails({
   };
 
   return (
-    <div className="w-full flex flex-col bg-white min-h-screen">
+    <div className="w-full flex flex-col bg-[#FFF6F0] min-h-screen">
       <div className="w-full max-w-[840px] mx-auto px-4 sm:px-8 py-8 flex flex-col gap-6 text-left">
         
         {/* ── Top Header Row ── */}

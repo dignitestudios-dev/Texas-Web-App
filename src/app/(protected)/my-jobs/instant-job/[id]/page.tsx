@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { InstantJobDetailsPage } from '@/features/care-services';
+import { InstantJobDetailsPage, JobDetailsSkeleton } from '@/features/care-services';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -8,7 +8,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const resolvedParams = await params;
   return (
-    <Suspense fallback={<div className="p-8 font-rubik">Loading instant job details...</div>}>
+    <Suspense fallback={<JobDetailsSkeleton />}>
       <InstantJobDetailsPage jobId={resolvedParams.id} />
     </Suspense>
   );

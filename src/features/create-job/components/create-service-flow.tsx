@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { CreateServiceSkeleton } from './create-service-skeleton';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -695,7 +696,7 @@ function CreateServiceContent() {
 
 export function CreateServiceFlow() {
   return (
-    <Suspense fallback={<div className="p-8 text-center font-rubik">Loading...</div>}>
+    <Suspense fallback={<CreateServiceSkeleton />}>
       <CreateServiceContent />
     </Suspense>
   );
