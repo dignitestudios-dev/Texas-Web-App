@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react';
 import { ApplicantDetailsPage } from '@/features/care-services/components/applicant-details-page';
+import { ApplicantDetailsSkeleton } from '@/features/care-services';
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="p-8 font-rubik">Loading application details...</div>}>
+    <Suspense fallback={<ApplicantDetailsSkeleton />}>
       <ApplicantDetailsPage applicationId="app-1" />
     </Suspense>
   );

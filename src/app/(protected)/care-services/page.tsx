@@ -1,6 +1,10 @@
-import React from 'react';
-import { CareServicesPage } from '@/features/care-services';
+import React, { Suspense } from 'react';
+import { CareServicesPage, JobsPageSkeleton } from '@/features/care-services';
 
 export default function Page() {
-  return <CareServicesPage />;
+  return (
+    <Suspense fallback={<JobsPageSkeleton />}>
+      <CareServicesPage />
+    </Suspense>
+  );
 }

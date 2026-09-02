@@ -23,6 +23,8 @@ const Navbar = () => {
     const [selectedLanguage, setSelectedLanguage] = useState<'English' | 'Spanish'>('English');
     const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
     const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+    const [isSwitchingDialogOpen, setIsSwitchingDialogOpen] = useState(false);
+    const [switchingTarget, setSwitchingTarget] = useState<'Caregiver' | 'Care Seeker'>('Care Seeker');
     const [loggedIn, setLoggedIn] = useState(false);
     const [currentRole, setCurrentRole] = useState<UserRole>('giver');
 
@@ -39,15 +41,23 @@ const Navbar = () => {
 
     const handleToggleSwitch = (checked: boolean) => {
         const newRole: UserRole = checked ? 'giver' : 'seeker';
-        setCurrentRole(newRole);
-        saveRole(newRole);
-        window.dispatchEvent(new Event('roleChange'));
-        if (loggedIn) {
-            toast.success(`Switched to ${checked ? 'Caregiver' : 'Care Seeker'} mode`);
-        } else {
-            toast.info(`Viewing as ${checked ? 'Caregiver' : 'Care Seeker'}`);
-        }
-        router.refresh();
+        const targetLabel = checked ? 'Caregiver' : 'Care Seeker';
+        setSwitchingTarget(targetLabel);
+        setIsSwitchingDialogOpen(true);
+
+        setTimeout(() => {
+            setCurrentRole(newRole);
+            saveRole(newRole);
+            window.dispatchEvent(new Event('roleChange'));
+            if (loggedIn) {
+                toast.success(`Switched to ${targetLabel} mode`);
+            } else {
+                toast.info(`Viewing as ${targetLabel}`);
+            }
+            router.push('/');
+            router.refresh();
+            setIsSwitchingDialogOpen(false);
+        }, 1000);
     };
 
     return (
@@ -73,6 +83,7 @@ const Navbar = () => {
                     <Switch
                         checked={currentRole === 'giver'}
                         onCheckedChange={handleToggleSwitch}
+                        disabled={isSwitchingDialogOpen}
                         className={cn(
                             "transition-colors",
                             currentRole === 'giver' ? "bg-[#0A0A6E]" : "bg-[#E4E4E4]"
@@ -345,13 +356,41 @@ const Navbar = () => {
                             type="button"
                             onClick={() => {
                                 clearAuth();
+                                setLoggedIn(false);
                                 setIsLogoutDialogOpen(false);
-                                // router.push('/login');
+                                toast.success('Logged out successfully');
+                                router.push('/');
+                                router.refresh();
                             }}
                             className="flex-1 h-[48px] bg-[#C81E1E] hover:bg-[#a81818] text-white font-rubik font-medium text-[15px] rounded-[14px] transition cursor-pointer border-none shadow-sm"
                         >
                             Log Out
                         </button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Switching Role Loading Dialog Modal */}
+            <Dialog open={isSwitchingDialogOpen} onOpenChange={() => {}}>
+                <DialogContent
+                    showCloseButton={false}
+                    className="w-[340px] max-w-[90vw] p-8 rounded-[24px] bg-white overflow-hidden shadow-2xl border border-neutral-100 outline-none flex flex-col items-center text-center gap-4 select-none animate-in fade-in zoom-in-95 duration-200"
+                >
+                    {/* Animated Loader with Theme Colors */}
+                    <div className="relative w-16 h-16 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full border-4 border-[#F8F9FF] border-t-[#F36922] border-r-[#0A0A6E] animate-spin" />
+                        <div className="absolute w-8 h-8 rounded-full bg-[#FFF0E8] flex items-center justify-center">
+                            <div className="w-3 h-3 rounded-full bg-[#F36922] animate-ping" />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1.5 mt-1">
+                        <DialogTitle className="font-rubik font-bold text-[20px] text-[#121111] leading-tight">
+                            Switching...
+                        </DialogTitle>
+                        <DialogDescription className="font-rubik font-normal text-[14px] text-[#565656]">
+                            Switching to {switchingTarget} and redirecting...
+                        </DialogDescription>
                     </div>
                 </DialogContent>
             </Dialog>

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -28,26 +27,31 @@ export function StepCategorySelect({
 
   return (
     <div className="w-full flex flex-col bg-white min-h-screen">
-      {/* ── Photographic Hero Banner (Matching Screenshot 1) ── */}
-      <div className="w-full h-[240px] sm:h-[290px] relative overflow-hidden flex items-center justify-center text-center px-4">
-        {/* Background Image */}
-        <Image
-          src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=1600&auto=format&fit=crop&q=80"
-          alt="Post a Care Request Hero"
-          fill
-          priority
-          className="object-cover object-center"
-          unoptimized
+      {/* ── Top Hero Banner (Matching Home / Page Style) ── */}
+      <div className="relative w-full h-[280px] sm:h-[420px] -mt-40 flex flex-col items-center justify-center overflow-hidden">
+        {/* Background Gradient */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{ background: 'linear-gradient(247.2deg, #0A0A6E -13.06%, #F36922 111.27%)' }}
         />
-        {/* Dark Gradient Overlay */}
-        <div className="absolute inset-0 bg-black/45 backdrop-blur-[0.5px]" />
+        {/* Banner Texture with Overlay */}
+        <div
+          className="absolute inset-0 z-10 opacity-80 bg-no-repeat"
+          style={{
+            backgroundImage:
+              'linear-gradient(180deg, rgba(102, 102, 102, 0) 0%, #000000 100%), url(/images/home/banner.webp)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
 
         {/* Hero Content */}
-        <div className="relative z-10 flex flex-col items-center gap-2 max-w-[700px]">
-          <h1 className="font-rubik font-bold text-[32px] sm:text-[44px] text-white leading-tight drop-shadow-md">
+        <div className="relative z-20 flex pt-28 flex-col items-center justify-center w-full max-w-[800px] text-center gap-3 px-4">
+          <h1 className="font-rubik font-semibold text-[34px] sm:text-[46px] md:text-[50px] leading-[1.2] tracking-[-0.408px] text-white">
             Post a Care Request
           </h1>
-          <p className="font-rubik font-normal text-[15px] sm:text-[18px] text-white/90 leading-[24px] max-w-[560px]">
+          <p className="font-rubik font-light text-[16px] sm:text-[20px] md:text-[22px] leading-[1.3] tracking-[-0.408px] text-white max-w-[620px]">
             Tell caregivers what care you need and find the right match for you.
           </p>
         </div>
@@ -80,19 +84,17 @@ export function StepCategorySelect({
                   key={cat}
                   type="button"
                   onClick={() => handleCategorySelect(cat)}
-                  className={`h-[54px] px-4 rounded-[12px] bg-white border flex items-center gap-3.5 cursor-pointer transition text-left shadow-2xs ${
-                    isSelected
+                  className={`h-[54px] px-4 rounded-[12px] bg-white border flex items-center gap-3.5 cursor-pointer transition text-left shadow-2xs ${isSelected
                       ? 'border-[#0A0A6E] bg-neutral-50/50 ring-1 ring-[#0A0A6E]/20'
                       : 'border-neutral-200 hover:border-neutral-300'
-                  }`}
+                    }`}
                 >
                   {/* Custom Radio Circle */}
                   <div
-                    className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition ${
-                      isSelected
+                    className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition ${isSelected
                         ? 'border-[#0A0A6E] bg-[#0A0A6E]'
                         : 'border-[#CBD5E1] bg-white'
-                    }`}
+                      }`}
                   >
                     {isSelected && (
                       <div className="w-[6px] h-[6px] rounded-full bg-white" />
@@ -100,11 +102,10 @@ export function StepCategorySelect({
                   </div>
 
                   <span
-                    className={`font-rubik text-[14.5px] leading-[18px] ${
-                      isSelected
+                    className={`font-rubik text-[14.5px] leading-[18px] ${isSelected
                         ? 'font-medium text-[#121111]'
                         : 'font-normal text-[#475569]'
-                    }`}
+                      }`}
                   >
                     {cat}
                   </span>

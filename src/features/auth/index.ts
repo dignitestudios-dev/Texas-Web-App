@@ -12,6 +12,7 @@ export * from './components/profile-form';
 export * from './components/giver-profile-form';
 export * from './components/login-skeleton';
 export * from './components/verification-skeleton';
+export * from './components/register-skeleton';
 export * from './components/identity-verification';
 
 // Type exports

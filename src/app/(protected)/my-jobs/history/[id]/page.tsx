@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { HistoryDetailsPage } from '@/features/care-services/components/history-details-page';
+import { JobDetailsSkeleton } from '@/features/care-services';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -8,7 +9,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const resolvedParams = await params;
   return (
-    <Suspense fallback={<div className="p-8 font-rubik">Loading history details...</div>}>
+    <Suspense fallback={<JobDetailsSkeleton />}>
       <HistoryDetailsPage jobId={resolvedParams.id} />
     </Suspense>
   );
