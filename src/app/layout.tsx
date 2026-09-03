@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 import QueryProvider from "@/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TopProgressBar } from "@/components/common/top-progress-bar";
+import { NetworkGuard } from "@/components/common/network-guard";
 
 export default function RootLayout({
   children,
@@ -34,6 +35,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <TopProgressBar />
+        <NetworkGuard />
         <QueryProvider>
           {children}
           <Toaster />
