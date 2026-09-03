@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -39,10 +39,27 @@ import { getToken } from '@/lib/cookies';
 
 export function GiverMyJobsPage() {
   const router = useRouter();
-  const isLoggedIn = !!getToken()
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState<'explore' | 'applied' | 'active' | 'history'>('explore');
   const [activeSubTab, setActiveSubTab] = useState<GiverJobSubTab>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const updateAuth = () => {
+      const logged = !!getToken();
+      setIsLoggedIn(logged);
+      if (!logged && activeTab !== 'explore') {
+        setActiveTab('explore');
+      }
+    };
+    updateAuth();
+    window.addEventListener('authChange', updateAuth);
+    window.addEventListener('roleChange', updateAuth);
+    return () => {
+      window.removeEventListener('authChange', updateAuth);
+      window.removeEventListener('roleChange', updateAuth);
+    };
+  }, [activeTab]);
 
 
   // Filters State
