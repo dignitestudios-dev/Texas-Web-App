@@ -20,7 +20,10 @@ export function CalendarSchedulePage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    setIsLoggedIn(!!getToken());
+    const checkAuth = () => setIsLoggedIn(!!getToken());
+    checkAuth();
+    window.addEventListener('authChange', checkAuth);
+    return () => window.removeEventListener('authChange', checkAuth);
   }, []);
 
   // Days of week header for grid

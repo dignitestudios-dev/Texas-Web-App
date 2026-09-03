@@ -71,7 +71,7 @@ function Home() {
       title: 'Stay on Schedule',
       image: '/giver/calender.webp',
       link: '/calendar',
-      requiresAuth: true,
+      requiresAuth: false,
       description: "Keep track of your scheduled care bookings, upcoming appointments, and caregiver sessions all organized in one convenient calendar.",
     },
     {
@@ -95,7 +95,7 @@ function Home() {
       title: 'Manage your Jobs',
       image: '/giver/my-jobs.webp',
       link: '/my-jobs',
-      requiresAuth: true,
+      requiresAuth: false,
       description: "Track all your job activity in one place. View service requests, monitor applications you've submitted, and manage jobs through Pending, Ongoing, and Completed stages.",
     },
     {
@@ -116,7 +116,7 @@ function Home() {
       title: 'Stay on Schedule',
       image: '/giver/calender.webp',
       link: '/calendar',
-      requiresAuth: true,
+      requiresAuth: false,
       description: "Keep all your accepted jobs and upcoming services organized in one calendar. Bookings are automatically added so you can easily manage your time and availability.",
     },
     {

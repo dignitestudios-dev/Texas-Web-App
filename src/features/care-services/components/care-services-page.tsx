@@ -265,18 +265,16 @@ export default function CareServicesPage() {
 
             {/* Action Buttons: View Your Calendar + Filters */}
             <div className="flex items-center gap-2.5">
-              {activeTab !== 'explore' && isLoggedIn && (
-                <button
-                  type="button"
-                  onClick={() => router.push('/calendar')}
-                  className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[12px] bg-[#F36922] hover:bg-[#e05813] border border-[#F36922] text-white cursor-pointer transition shrink-0 shadow-sm"
-                >
-                  <span className="font-rubik font-medium text-[14px] leading-[17px] tracking-[-0.408px]">
-                    View Your Calendar
-                  </span>
-                  <CalendarIcon className="w-4 h-4" />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => router.push('/calendar')}
+                className="box-sizing-border-box flex flex-row justify-center items-center py-3 px-[18px] gap-2 h-[48px] rounded-[12px] bg-[#F36922] hover:bg-[#e05813] border border-[#F36922] text-white cursor-pointer transition shrink-0 shadow-sm"
+              >
+                <span className="font-rubik font-medium text-[14px] leading-[17px] tracking-[-0.408px]">
+                  View Your Calendar
+                </span>
+                <CalendarIcon className="w-4 h-4" />
+              </button>
               <button
                 type="button"
                 onClick={() => setIsFiltersOpen(true)}
